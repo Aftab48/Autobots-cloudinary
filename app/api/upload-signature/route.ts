@@ -1,4 +1,5 @@
-import { getCloudinary, validateUploadParams } from '../../../lib/cloudinary.mjs';
+import { getCloudinary } from '../../../lib/cloudinary.mjs';
+import { validateProjectUpload } from '../../../lib/upload-context.mjs';
 
 export const runtime = 'nodejs';
 
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     if (!body || typeof body.paramsToSign !== 'object' || Array.isArray(body.paramsToSign) || !body.paramsToSign) throw new Error('Missing paramsToSign');
-    params = validateUploadParams(body.paramsToSign);
+    params = await validateProjectUpload(body.paramsToSign);
   } catch {
     return Response.json({ error: 'Invalid upload parameters' }, { status: 400 });
   }

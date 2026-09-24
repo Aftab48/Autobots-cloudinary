@@ -28,7 +28,8 @@
     "search:test": "node --test scripts/search/*.test.mjs",
     "search:check": "node scripts/search/check.mjs",
     "project:check": "node scripts/project/check.mjs",
-    "project:smoke": "node scripts/project/smoke.mjs"
+    "project:smoke": "node scripts/project/smoke.mjs",
+    "project:setup": "node scripts/project/setup.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",

@@ -3,7 +3,6 @@ import { pathToFileURL } from 'node:url';
 import { database, getAsset } from '../../lib/db.mjs';
 import { processAsset } from '../../lib/pipeline.mjs';
 import { safeError } from '../../lib/pipeline-providers.mjs';
-import { projectId } from '../../lib/cloudinary.mjs';
 
 export function parseProcessArgs(args) {
   const parsed = { id: null, tier: null, forceLlm: false };
@@ -24,8 +23,9 @@ export function parseProcessArgs(args) {
 async function main() {
   const { id, tier, forceLlm } = parseProcessArgs(process.argv.slice(2));
   process.loadEnvFile('.env.local');
-  if (!await getAsset(id)) throw new Error('Asset is not in this project');
-  if (tier !== null) await database()`UPDATE assets SET analysis_tier = ${tier} WHERE id = ${id} AND project_id = ${projectId}`;
+  const asset = await getAsset(id);
+  if (!asset) throw new Error('Asset was not found');
+  if (tier !== null) await database()`UPDATE assets SET analysis_tier = ${tier} WHERE id = ${id} AND project_id = ${asset.project_id}`;
   const result = await processAsset(id, { forceLlm });
   console.log(JSON.stringify({ id, state: result.state, status: result.asset?.status, analysis_source: result.asset?.analysis_source, reason: result.asset?.status_reason, error: result.error }, null, 2));
   if (result.state !== 'classified') process.exitCode = 1;

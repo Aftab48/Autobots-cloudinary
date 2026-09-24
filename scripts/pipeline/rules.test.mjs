@@ -4,7 +4,7 @@ import { chooseAnalysisPath, hashDistance, resolveCapture, restoreLegacyAnalysis
 
 const project = { activities: ['river_cleanup'], start_date: '2026-01-01', end_date: '2026-12-31' };
 const analysis = { activity: 'river_cleanup', relevant_to_project: true };
-const asset = { resource_type: 'image', bytes: 10000, quality_score: 1, width: 1024, height: 768, captured_at: '2026-09-24T12:00:00Z', lat: 22.5, lng: 88.3, analysis_result: analysis };
+const asset = { resource_type: 'image', pipeline_state: 'classified', bytes: 10000, etag: 'dedupe-comparable', quality_score: 1, width: 1024, height: 768, captured_at: '2026-09-24T12:00:00Z', lat: 22.5, lng: 88.3, analysis_result: analysis };
 
 test('capture resolution uses independent date and location priorities, including zero coordinates', () => {
   const result = resolveCapture({ raw_cloudinary: { context: { custom: { capture_time: '2026-09-24T12:00:00Z', capture_lat: '0', capture_lng: '0', batch_date: '2026-01-01' } } }, exif: { DateTimeOriginal: '2020:01:01 00:00:00', GPSLatitude: 20, GPSLongitude: 30 } });
