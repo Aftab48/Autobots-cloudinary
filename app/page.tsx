@@ -1,1 +1,5 @@
-export default function Home() { return <main><p className="eyebrow">PS02 / DAY 1</p><h1>Check the account.<br/>Then build the evidence.</h1><p>This minimal app accompanies the Cloudinary and OpenRouter capability checks. Run the server-side scripts to inspect uploads, AI analysis, search and image composites.</p><ol><li><code>npm run day1:cloudinary</code></li><li><code>npm run day1:openrouter</code></li></ol><p>Local results: <code>artifacts/day1/</code><br/>Findings and instructions: <code>docs/day1-checks.md</code></p></main>; }
+import Link from 'next/link';
+
+export default function Home() {
+  return <main><p className="eyebrow">PS02 / EVIDENCE INGESTION</p><h1>Collect the evidence.</h1><p>Bulk uploads go to Cloudinary. Verified webhooks preserve the original metadata in Neon for review.</p><nav><Link href="/upload">Upload evidence →</Link><Link href="/evidence">View raw evidence →</Link></nav></main>;
+}

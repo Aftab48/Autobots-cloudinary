@@ -10,7 +10,8 @@
     "day1:cloudinary": "node scripts/day1/cloudinary.mjs",
     "day1:openrouter": "node scripts/day1/openrouter.mjs",
     "day1:models": "node scripts/day1/models.mjs",
-    "test": "node --test scripts/day1/schema.test.mjs"
+    "test": "node --test scripts/day1/schema.test.mjs scripts/step2/*.test.mjs",
+    "step2:setup": "node scripts/step2/setup.mjs"
   },
   "dependencies": {
     "next": "latest",
