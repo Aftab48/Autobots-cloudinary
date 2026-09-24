@@ -10,13 +10,19 @@
     "day1:cloudinary": "node scripts/day1/cloudinary.mjs",
     "day1:openrouter": "node scripts/day1/openrouter.mjs",
     "day1:models": "node scripts/day1/models.mjs",
-    "test": "node --test scripts/day1/schema.test.mjs scripts/step2/*.test.mjs",
+    "test": "node --test scripts/day1/schema.test.mjs scripts/step2/*.test.mjs scripts/analysis/*.test.mjs scripts/pipeline/*.test.mjs",
     "step2:setup": "node scripts/step2/setup.mjs",
     "dataset:collect": "node scripts/dataset/collect.mjs",
     "dataset:test": "node --test scripts/dataset/collect.test.mjs",
     "analysis:test": "node --test scripts/analysis/prompts.test.mjs",
     "analysis:probe": "node scripts/analysis/probe.mjs --run",
-    "analysis:vision": "node scripts/analysis/probe.mjs --vision-only"
+    "analysis:vision": "node scripts/analysis/probe.mjs --vision-only",
+    "pipeline:setup": "node scripts/pipeline/setup.mjs",
+    "pipeline:test": "node --test scripts/pipeline/*.test.mjs",
+    "pipeline:fixtures": "node scripts/pipeline/fixtures.mjs --upload",
+    "pipeline:check": "node scripts/pipeline/check.mjs --run",
+    "pipeline:review-check": "node scripts/pipeline/review-check.mjs --run",
+    "pipeline:process": "node scripts/pipeline/process.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",
