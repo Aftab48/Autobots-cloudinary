@@ -13,7 +13,9 @@
     "test": "node --test scripts/day1/schema.test.mjs scripts/step2/*.test.mjs",
     "step2:setup": "node scripts/step2/setup.mjs",
     "dataset:collect": "node scripts/dataset/collect.mjs",
-    "dataset:test": "node --test scripts/dataset/collect.test.mjs"
+    "dataset:test": "node --test scripts/dataset/collect.test.mjs",
+    "analysis:test": "node --test scripts/analysis/prompts.test.mjs",
+    "analysis:probe": "node scripts/analysis/probe.mjs --run"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",
