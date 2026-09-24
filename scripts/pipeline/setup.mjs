@@ -5,9 +5,11 @@ import { activities, DEFAULT_PROJECT } from '../../lib/analysis-prompts.mjs';
 
 process.loadEnvFile('.env.local');
 const sql = database();
-const migration = await fs.readFile('migrations/002_pipeline.sql', 'utf8');
-await sql.transaction(migration.split(';').map(s => s.trim()).filter(Boolean).map(s => sql.query(s)));
-console.log('Migration 002 applied.');
+for (const file of ['002_pipeline.sql', '003_pipeline_recovery.sql']) {
+  const migration = await fs.readFile(`migrations/${file}`, 'utf8');
+  await sql.transaction(migration.split(';').map(s => s.trim()).filter(Boolean).map(s => sql.query(s)));
+}
+console.log('Migrations 002–003 applied.');
 // Initialize only the original ingestion placeholder; preserve any configured project.
 await sql`UPDATE projects SET activities = ${activities.filter(a => a !== 'other')}, description = ${DEFAULT_PROJECT}
   WHERE id = ${projectId} AND cardinality(activities) = 0

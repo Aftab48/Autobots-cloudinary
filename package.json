@@ -22,7 +22,8 @@
     "pipeline:fixtures": "node scripts/pipeline/fixtures.mjs --upload",
     "pipeline:check": "node scripts/pipeline/check.mjs --run",
     "pipeline:review-check": "node scripts/pipeline/review-check.mjs --run",
-    "pipeline:process": "node scripts/pipeline/process.mjs"
+    "pipeline:process": "node scripts/pipeline/process.mjs",
+    "pipeline:stuck": "node scripts/pipeline/stuck.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",

@@ -1,5 +1,5 @@
 import { verifyWebhook } from '../../../../lib/cloudinary.mjs';
-import { storeNotification } from '../../../../lib/db.mjs';
+import { storeNotification, getAsset } from '../../../../lib/db.mjs';
 import { processAsset } from '../../../../lib/pipeline.mjs';
 import { after } from 'next/server';
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const assetId = await storeNotification(data);
     // A per-notification job uses the database claim/cache, not an external queue.
     // Metadata mirror notifications must not recursively schedule mirror writes.
-    const frameParent = (data.context?.custom ?? data.context)?.source_asset_id;
+    const frameParent = assetId && (await getAsset(assetId))?.parent_asset_id;
     if (assetId && !frameParent && !String(data.notification_type ?? '').includes('metadata')) {
       after(async () => {
         try { await processAsset(assetId); }
