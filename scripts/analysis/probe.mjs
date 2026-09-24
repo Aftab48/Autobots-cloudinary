@@ -1,4 +1,4 @@
-// Explicit bounded evaluation: six signed core uploads, six LLM assets, two AI Vision assets.
+// --vision-only reuses the two prior uploads and cached LLM results; no uploads or new LLM calls.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,13 +8,14 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import { getCloudinary } from '../../lib/cloudinary.mjs';
 import {
-  buildTaggingBodies, buildQuestionBody, buildFallbackMessages, fallbackSchema,
-  LLM_SETTINGS, normalizeVision, analyzeWithFallback,
+  buildQuestionBody, buildFallbackMessages, fallbackSchema,
+  LLM_SETTINGS, validateFallback, normalizeVision, analyzeWithFallback,
 } from '../../lib/analysis-prompts.mjs';
 
-if (process.argv.length !== 3 || !['--upload', '--run'].includes(process.argv[2])) {
-  throw new Error('Explicit live probe: node scripts/analysis/probe.mjs --upload|--run');
+if (process.argv.length !== 3 || !['--upload', '--run', '--vision-only'].includes(process.argv[2])) {
+  throw new Error('Explicit live probe: node scripts/analysis/probe.mjs --upload|--run|--vision-only');
 }
+const visionOnly = process.argv[2] === '--vision-only';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 process.loadEnvFile(path.join(root, '.env.local'));
 const output = path.join(root, 'artifacts/analysis-prompts');
@@ -22,11 +23,27 @@ await fs.mkdir(output, { recursive: true });
 const required = (name) => { const v = process.env[name]?.trim(); if (!v) throw new Error(`Missing ${name}`); return v; };
 const config = new URL(required('CLOUDINARY_URL'));
 const secrets = [process.env.CLOUDINARY_URL, process.env.OPENROUTER_API_KEY, process.env.DATABASE_URL, decodeURIComponent(config.username), decodeURIComponent(config.password)].filter(Boolean);
-const clean = (value) => JSON.parse(secrets.reduce((s, secret) => s.replaceAll(secret, '[REDACTED]'), JSON.stringify(value, (_, v) => v instanceof Error ? { name: v.name, message: v.message, status: v.status ?? v.http_code, error: v.error } : v)));
+const clean = (value) => JSON.parse(secrets.reduce((s, secret) => s.replaceAll(secret, '[REDACTED]'), JSON.stringify(value, (_, v) => v instanceof Error ? { name: v.name, message: v.message, code: v.code, field: v.field, status: v.status ?? v.http_code, error: v.error } : v)));
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 async function read(name) { try { return JSON.parse(await fs.readFile(path.join(output, `${name}.json`), 'utf8')); } catch (e) { if (e.code === 'ENOENT') return null; throw e; } }
 async function save(name, value) { const file = path.join(output, `${name}.json`); await fs.writeFile(`${file}.tmp`, JSON.stringify(clean(value), null, 2)); await fs.rename(`${file}.tmp`, file); }
 
+const assets = [];
+if (visionOnly) {
+  const prior = await read('fixtures');
+  assert.ok(prior?.assets, 'Prior six-image fixture manifest is required; this mode never uploads');
+  for (const [id, openverseId] of [['cleanup', '67eaf057-adee-4aac-b00d-b7cd12b3afb8'], ['planting', '6058d6e6-f847-4cd8-b06a-660e54a8aa33']]) {
+    const asset = prior.assets.find(a => a.id === id);
+    assert.equal(asset?.provenance.openverse_id, openverseId, 'Reuse the exact previously tested assets');
+    const upload = await read(`upload-${id}`);
+    assert.equal(asset.asset_id, upload?.response.asset_id);
+    assert.equal(asset.public_id, upload?.response.public_id);
+    const url = new URL(asset.delivery_url);
+    assert.equal(url.origin, 'https://res.cloudinary.com');
+    assert.equal(url.pathname, `/${config.hostname}/image/upload/c_limit,w_1024/v${upload.response.version}/${asset.public_id}.jpg`);
+    assets.push(asset);
+  }
+} else {
 const fixtures = [
   ['cleanup', 'data/openverse/river-cleanup-volunteers/67eaf057-adee-4aac-b00d-b7cd12b3afb8.jpg', true, 'People bagging visible waste on a boat at the riverbank'],
   ['planting', 'data/openverse/tree-planting-volunteers/6058d6e6-f847-4cd8-b06a-660e54a8aa33.jpg', true, 'People kneeling at a planted young tree and exposed soil'],
@@ -49,7 +66,6 @@ for (const key of ['detection', 'categorization', 'auto_tagging', 'background_re
   assert.ok(!preset.settings[key], `Unexpected core preset option: ${key}`);
 }
 await save('preset-verification', { name: preset.name, unsigned: preset.unsigned, settings: preset.settings });
-const assets = [];
 for (const fixture of fixtures) {
   let upload = await read(`upload-${fixture.id}`);
   const publicId = `ps02/prompt-tests/${fixture.provenance.openverse_id}-${fixture.sha256.slice(0, 12)}`;
@@ -70,6 +86,7 @@ for (const fixture of fixtures) {
 }
 await save('fixtures', { notice: 'Five visually selected relevant activity examples and one irrelevant bird. These do not prove participation in a specific Kolkata project.', assets });
 if (process.argv[2] === '--upload') process.exit(0);
+}
 
 const model = required('LLM_MODEL_VISION');
 assert.ok(!model.includes(','), 'Use one environment-supplied vision model, not a benchmark model list');
@@ -103,12 +120,20 @@ async function runLlm(asset, attempt = 0) {
 }
 const results = [];
 for (const asset of assets) {
+  if (visionOnly) {
+    const cached = await read(`llm-${asset.id}-0`);
+    assert.ok(cached?.ok, `Validated prior LLM result required for ${asset.id}`);
+    assert.deepEqual(cached.request.messages, buildFallbackMessages(asset.delivery_url), 'Fallback prompt or source changed; review the prior result');
+    const analysis = validateFallback(cached.response.choices[0].message.content);
+    results.push({ id: asset.id, expected_relevance: asset.expected_relevance, analysis });
+    continue;
+  }
   const result = await analyzeWithFallback({ runVision: async () => { throw new Error('Explicit six-image LLM-path evaluation'); }, runLlm: ({ attempt }) => runLlm(asset, attempt) });
   results.push({ id: asset.id, expected_relevance: asset.expected_relevance, ...result });
   await save('llm-results', { model, promptHash, results });
   console.log(`LLM ${asset.id}: ${result.status}; relevance=${result.analysis?.relevant_to_project}; activity=${result.analysis?.activity}`);
 }
-assert.equal(results.length, 6);
+assert.equal(results.length, visionOnly ? 2 : 6);
 assert.ok(results.every((r) => r.analysis), 'LLM failures saved; inspect before running Vision');
 const expectedActivities = ['river_cleanup', 'tree_plantation', 'community_participation', 'waste_removal', 'river_cleanup', 'other'];
 for (const [i, row] of results.entries()) {
@@ -116,9 +141,11 @@ for (const [i, row] of results.entries()) {
   assert.equal(row.analysis.activity, expectedActivities[i], `Unexpected activity for ${row.id}`);
 }
 const auth = 'Basic ' + Buffer.from(`${decodeURIComponent(config.username)}:${decodeURIComponent(config.password)}`).toString('base64');
-async function visionRequest(asset, endpoint, body, index) {
-  return paid(`vision-${asset.id}-${index}`, { endpoint, ...body }, async () => {
-    assert.ok(++visionCalls <= 6, 'Only two Vision assets with three calls each are allowed');
+async function visionRequest(asset, body) {
+  const endpoint = 'ai_vision_general';
+  return paid(`vision-general-v2-${asset.id}`, { endpoint, ...body }, async () => {
+    assert.ok(['cleanup', 'planting'].includes(asset.id), 'Only the two prior assets are allowed');
+    assert.ok(++visionCalls <= 2, 'Only one general call per asset is allowed');
     const r = await fetch(`https://api.cloudinary.com/v2/analysis/${config.hostname}/analyze/${endpoint}`, {
       method: 'POST', headers: { Authorization: auth, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(90000),
     });
@@ -131,15 +158,13 @@ const primary = [];
 for (const asset of assets.slice(0, 2)) {
   const result = await analyzeWithFallback({
     runVision: async () => {
-      const tagged = [];
-      for (const [i, body] of buildTaggingBodies(asset.delivery_url).entries()) tagged.push(await visionRequest(asset, 'ai_vision_tagging', body, i));
-      const general = await visionRequest(asset, 'ai_vision_general', buildQuestionBody(asset.delivery_url), 2);
-      return normalizeVision(tagged, general);
+      const general = await visionRequest(asset, buildQuestionBody(asset.delivery_url));
+      return normalizeVision(general);
     },
     runLlm: async () => JSON.stringify(results.find((r) => r.id === asset.id).analysis),
   });
   primary.push({ id: asset.id, ...result });
-  await save('vision-results', { promptHash, notice: 'On live Vision failure, reuse the already validated live LLM result for the same asset; no extra paid LLM call.', results: primary });
+  await save('vision-results-v2', { promptHash, notice: 'On live Vision or parse failure, reuse the validated live LLM result for the same asset; visionError records why.', results: primary });
   console.log(`Vision ${asset.id}: ${result.status}; source=${result.analysis?.analysis_source}`);
 }
 const faults = [];
@@ -153,11 +178,11 @@ for (const error of [
   assert.equal(fallbackCalls, 1); assert.equal(result.analysis.analysis_source, 'llm_fallback'); assert.equal(result.visionError, error);
   faults.push({ injected_status: error.status, fallbackCalls, ...result });
 }
-await save('fallback-fault-tests', { notice: 'Offline fault injection using a validated live LLM response; no real quota exhaustion or additional service requests.', results: faults });
+await save('fallback-fault-tests-v2', { notice: 'Offline fault injection using a validated live LLM response; no real quota exhaustion or additional service requests.', results: faults });
 const billed = [];
-for (const name of await fs.readdir(output)) if (/^(vision|llm)-.*-\d\.json$/.test(name)) {
+for (const name of ['vision-general-v2-cleanup.json', 'vision-general-v2-planting.json']) {
   const r = JSON.parse(await fs.readFile(path.join(output, name), 'utf8'));
   if (name.startsWith('vision')) for (const q of r.response?.limits?.addons_quota ?? []) if (q.type === 'ai_vision') billed.push({ file: name, ...q });
 }
-await save('summary', { model, promptHash, llm_new_requests: llmCalls, vision_new_requests: visionCalls, llm: results, vision: primary, fault_tests: faults.length, ai_vision_usage: billed, ai_vision_total_tokens: billed.reduce((n, q) => n + q.used_by_request, 0) });
-console.log('Bounded evaluation complete. Evidence: artifacts/analysis-prompts/summary.json');
+await save('summary-general-v2', { model, promptHash, llm_new_requests: llmCalls, vision_new_requests: visionCalls, llm: results, vision: primary, fault_tests: faults.length, ai_vision_usage: billed, ai_vision_total_tokens: billed.reduce((n, q) => n + q.used_by_request, 0) });
+console.log('Bounded evaluation complete. Evidence: artifacts/analysis-prompts/summary-general-v2.json');

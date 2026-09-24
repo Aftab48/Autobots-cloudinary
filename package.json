@@ -15,7 +15,8 @@
     "dataset:collect": "node scripts/dataset/collect.mjs",
     "dataset:test": "node --test scripts/dataset/collect.test.mjs",
     "analysis:test": "node --test scripts/analysis/prompts.test.mjs",
-    "analysis:probe": "node scripts/analysis/probe.mjs --run"
+    "analysis:probe": "node scripts/analysis/probe.mjs --run",
+    "analysis:vision": "node scripts/analysis/probe.mjs --vision-only"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",
