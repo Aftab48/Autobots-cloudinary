@@ -1,0 +1,12 @@
+.env.local
+.env*.local
+node_modules/
+.next/
+.codex/
+AGENTS.md
+plan/
+prompts.md
+.env*
+!.env.local.example
+artifacts/
+*.tsbuildinfo

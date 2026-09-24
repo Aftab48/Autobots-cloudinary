@@ -1,0 +1,805 @@
+{
+  "notice": "Observed JSON shapes from local account probes; leaf values replaced by type labels. Full exact sanitized payloads remain in ignored artifacts/day1.",
+  "upload-fixture-1": {
+    "request": {
+      "sdk": "string",
+      "file": "string",
+      "options": {
+        "resource_type": "string",
+        "public_id": "string",
+        "asset_folder": "string",
+        "overwrite": "boolean",
+        "image_metadata": "boolean",
+        "quality_analysis": "boolean",
+        "phash": "boolean",
+        "categorization": "string",
+        "auto_tagging": "number",
+        "detection": "string",
+        "visual_search": "boolean",
+        "context": {
+          "site": "string",
+          "activity_hint": "string",
+          "captured_at": "string",
+          "lat": "string",
+          "lng": "string",
+          "capture_source": "string"
+        },
+        "notification_url": "string"
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "asset_id": "string",
+      "public_id": "string",
+      "version": "number",
+      "version_id": "string",
+      "signature": "string",
+      "width": "number",
+      "height": "number",
+      "format": "string",
+      "resource_type": "string",
+      "created_at": "string",
+      "tags": [
+        "string"
+      ],
+      "pages": "number",
+      "bytes": "number",
+      "type": "string",
+      "etag": "string",
+      "placeholder": "boolean",
+      "url": "string",
+      "secure_url": "string",
+      "asset_folder": "string",
+      "display_name": "string",
+      "context": {
+        "custom": {
+          "activity_hint": "string",
+          "capture_source": "string",
+          "captured_at": "string",
+          "lat": "string",
+          "lng": "string",
+          "site": "string"
+        }
+      },
+      "info": {
+        "categorization": {
+          "google_tagging": {
+            "status": "string",
+            "data": [
+              {
+                "tag": "string",
+                "confidence": "number"
+              }
+            ]
+          }
+        },
+        "detection": {
+          "captioning": {
+            "status": "string",
+            "data": {
+              "caption": "string"
+            },
+            "schema_version": "number",
+            "model_version": "number"
+          }
+        }
+      },
+      "existing": "boolean",
+      "image_metadata": {
+        "JFIFVersion": "string",
+        "ResolutionUnit": "string",
+        "XResolution": "string",
+        "YResolution": "string",
+        "Colorspace": "string",
+        "DPI": "string"
+      },
+      "phash": "string",
+      "illustration_score": "number",
+      "semi_transparent": "boolean",
+      "grayscale": "boolean",
+      "quality_analysis": {
+        "focus": "number"
+      },
+      "original_filename": "string",
+      "api_key": "string"
+    }
+  },
+  "upload-fixture-2": {
+    "request": {
+      "sdk": "string",
+      "file": "string",
+      "options": {
+        "resource_type": "string",
+        "public_id": "string",
+        "asset_folder": "string",
+        "overwrite": "boolean",
+        "image_metadata": "boolean",
+        "quality_analysis": "boolean",
+        "phash": "boolean",
+        "categorization": "string",
+        "auto_tagging": "number",
+        "detection": "string",
+        "visual_search": "boolean",
+        "context": {
+          "site": "string",
+          "activity_hint": "string",
+          "captured_at": "string",
+          "lat": "string",
+          "lng": "string",
+          "capture_source": "string"
+        },
+        "notification_url": "string"
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "asset_id": "string",
+      "public_id": "string",
+      "version": "number",
+      "version_id": "string",
+      "signature": "string",
+      "width": "number",
+      "height": "number",
+      "format": "string",
+      "resource_type": "string",
+      "created_at": "string",
+      "tags": [
+        "string"
+      ],
+      "pages": "number",
+      "bytes": "number",
+      "type": "string",
+      "etag": "string",
+      "placeholder": "boolean",
+      "url": "string",
+      "secure_url": "string",
+      "asset_folder": "string",
+      "display_name": "string",
+      "context": {
+        "custom": {
+          "activity_hint": "string",
+          "capture_source": "string",
+          "captured_at": "string",
+          "lat": "string",
+          "lng": "string",
+          "site": "string"
+        }
+      },
+      "info": {
+        "categorization": {
+          "google_tagging": {
+            "status": "string",
+            "data": [
+              {
+                "tag": "string",
+                "confidence": "number"
+              }
+            ]
+          }
+        },
+        "detection": {
+          "captioning": {
+            "status": "string",
+            "data": {
+              "caption": "string"
+            },
+            "schema_version": "number",
+            "model_version": "number"
+          }
+        }
+      },
+      "existing": "boolean",
+      "image_metadata": {
+        "ImageWidth": "string",
+        "ImageHeight": "string",
+        "Make": "string",
+        "Model": "string",
+        "Orientation": "string",
+        "XResolution": "string",
+        "YResolution": "string",
+        "ResolutionUnit": "string",
+        "ModifyDate": "string",
+        "YCbCrPositioning": "string",
+        "ExposureTime": "string",
+        "FNumber": "string",
+        "ExposureProgram": "string",
+        "ISO": "string",
+        "ExifVersion": "string",
+        "DateTimeOriginal": "string",
+        "CreateDate": "string",
+        "ComponentsConfiguration": "string",
+        "ShutterSpeedValue": "string",
+        "ApertureValue": "string",
+        "BrightnessValue": "string",
+        "ExposureCompensation": "string",
+        "MaxApertureValue": "string",
+        "MeteringMode": "string",
+        "LightSource": "string",
+        "Flash": "string",
+        "FocalLength": "string",
+        "SubSecTime": "string",
+        "SubSecTimeOriginal": "string",
+        "SubSecTimeDigitized": "string",
+        "FlashpixVersion": "string",
+        "ColorSpace": "string",
+        "ExifImageWidth": "string",
+        "ExifImageHeight": "string",
+        "InteropIndex": "string",
+        "InteropVersion": "string",
+        "SensingMethod": "string",
+        "SceneType": "string",
+        "ExposureMode": "string",
+        "WhiteBalance": "string",
+        "FocalLengthIn35mmFormat": "string",
+        "SceneCaptureType": "string",
+        "GPSLatitudeRef": "string",
+        "GPSLongitudeRef": "string",
+        "GPSAltitudeRef": "string",
+        "GPSAltitude": "string",
+        "GPSTimeStamp": "string",
+        "GPSProcessingMethod": "string",
+        "GPSDateStamp": "string",
+        "Compression": "string",
+        "ThumbnailOffset": "string",
+        "ThumbnailLength": "string",
+        "XMPToolkit": "string",
+        "CaptureMode": "string",
+        "Scene": "string",
+        "IsHDRActive": "string",
+        "IsNightModeActive": "string",
+        "SceneDetectResultIds": "string",
+        "SceneDetectResultConfidences": "string",
+        "LensFacing": "string",
+        "GPSLatitude": "string",
+        "GPSLongitude": "string",
+        "Colorspace": "string",
+        "DPI": "string"
+      },
+      "phash": "string",
+      "illustration_score": "number",
+      "semi_transparent": "boolean",
+      "grayscale": "boolean",
+      "quality_analysis": {
+        "focus": "number"
+      },
+      "original_filename": "string",
+      "api_key": "string"
+    }
+  },
+  "tagging-fixture-1": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "source": {
+          "uri": "string"
+        },
+        "tag_definitions": [
+          {
+            "name": "string",
+            "description": "string"
+          }
+        ]
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "error": {
+      "name": "string",
+      "message": "string",
+      "status": "number",
+      "error": {
+        "error": {
+          "category": "string",
+          "code": "string",
+          "message": "string",
+          "details": {
+            "message": "string"
+          },
+          "request_id": "string"
+        }
+      }
+    }
+  },
+  "tagging-corrected-fixture-1": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "source": {
+          "uri": "string"
+        },
+        "tag_definitions": [
+          {
+            "name": "string",
+            "description": "string"
+          }
+        ]
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "error": {
+      "name": "string",
+      "message": "string",
+      "status": "number",
+      "error": {
+        "error": {
+          "category": "string",
+          "code": "string",
+          "message": "string",
+          "details": {
+            "feature_name": "string"
+          },
+          "request_id": "string"
+        }
+      }
+    }
+  },
+  "questions-fixture-1": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "source": {
+          "uri": "string"
+        },
+        "prompts": [
+          "string"
+        ]
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "error": {
+      "name": "string",
+      "message": "string",
+      "status": "number",
+      "error": {
+        "error": {
+          "category": "string",
+          "code": "string",
+          "message": "string",
+          "details": {
+            "feature_name": "string"
+          },
+          "request_id": "string"
+        }
+      }
+    }
+  },
+  "pair-before": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "source": {
+          "uri": "string"
+        },
+        "prompts": [
+          "string"
+        ]
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "error": {
+      "name": "string",
+      "message": "string",
+      "status": "number",
+      "error": {
+        "error": {
+          "category": "string",
+          "code": "string",
+          "message": "string",
+          "details": {
+            "feature_name": "string"
+          },
+          "request_id": "string"
+        }
+      }
+    }
+  },
+  "visual-search": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string"
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "resources": [],
+      "total_count": "number"
+    }
+  },
+  "composite": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "transformation": "string",
+      "before_asset_id": "string",
+      "after_asset_id": "string"
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "status": "number",
+      "content_type": "string",
+      "bytes": "number"
+    }
+  },
+  "openrouter-openai_gpt-4_1-mini-fixture-1": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "model": "string",
+        "messages": [
+          {
+            "role": "string",
+            "content": "string"
+          }
+        ],
+        "temperature": "number",
+        "max_tokens": "number",
+        "response_format": {
+          "type": "string",
+          "json_schema": {
+            "name": "string",
+            "strict": "boolean",
+            "schema": {
+              "$schema": "string",
+              "type": "string",
+              "properties": {
+                "caption": {
+                  "type": "string",
+                  "minLength": "number"
+                },
+                "activity": {
+                  "type": "string",
+                  "enum": [
+                    "string"
+                  ]
+                },
+                "relevant_to_project": {
+                  "type": [
+                    "string"
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "string"
+                  ]
+                },
+                "signals": {
+                  "type": "string",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "string"
+                    ]
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": "number"
+                },
+                "analysis_source": {
+                  "type": "string",
+                  "enum": [
+                    "string"
+                  ]
+                }
+              },
+              "required": [
+                "string"
+              ],
+              "additionalProperties": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "id": "string",
+      "object": "string",
+      "created": "number",
+      "model": "string",
+      "provider": "string",
+      "system_fingerprint": "null",
+      "service_tier": "string",
+      "choices": [
+        {
+          "index": "number",
+          "logprobs": "null",
+          "finish_reason": "string",
+          "native_finish_reason": "string",
+          "message": {
+            "role": "string",
+            "content": "string",
+            "refusal": "null",
+            "reasoning": "null"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": "number",
+        "completion_tokens": "number",
+        "total_tokens": "number",
+        "cost": "number",
+        "is_byok": "boolean",
+        "prompt_tokens_details": {
+          "cached_tokens": "number",
+          "cache_write_tokens": "number",
+          "audio_tokens": "number",
+          "video_tokens": "number"
+        },
+        "cost_details": {
+          "upstream_inference_cost": "number",
+          "upstream_inference_prompt_cost": "number",
+          "upstream_inference_completions_cost": "number"
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": "number",
+          "image_tokens": "number",
+          "audio_tokens": "number"
+        }
+      }
+    }
+  },
+  "query-filters": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "model": "string",
+        "messages": [
+          {
+            "role": "string",
+            "content": "string"
+          }
+        ],
+        "temperature": "number",
+        "max_tokens": "number",
+        "response_format": {
+          "type": "string",
+          "json_schema": {
+            "name": "string",
+            "strict": "boolean",
+            "schema": {
+              "$schema": "string",
+              "type": "string",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "date_from": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "string",
+                      "pattern": "string"
+                    }
+                  ]
+                },
+                "date_to": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "string",
+                      "pattern": "string"
+                    }
+                  ]
+                },
+                "activity": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    }
+                  ]
+                },
+                "site": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "string"
+              ],
+              "additionalProperties": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "id": "string",
+      "object": "string",
+      "created": "number",
+      "model": "string",
+      "provider": "string",
+      "system_fingerprint": "null",
+      "service_tier": "string",
+      "choices": [
+        {
+          "index": "number",
+          "logprobs": "null",
+          "finish_reason": "string",
+          "native_finish_reason": "string",
+          "message": {
+            "role": "string",
+            "content": "string",
+            "refusal": "null",
+            "reasoning": "null"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": "number",
+        "completion_tokens": "number",
+        "total_tokens": "number",
+        "cost": "number",
+        "is_byok": "boolean",
+        "prompt_tokens_details": {
+          "cached_tokens": "number",
+          "cache_write_tokens": "number",
+          "audio_tokens": "number",
+          "video_tokens": "number"
+        },
+        "cost_details": {
+          "upstream_inference_cost": "number",
+          "upstream_inference_prompt_cost": "number",
+          "upstream_inference_completions_cost": "number"
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": "number",
+          "image_tokens": "number",
+          "audio_tokens": "number"
+        }
+      }
+    }
+  },
+  "pair-fallback-openai_gpt-4_1-mini": {
+    "request": {
+      "method": "string",
+      "url": "string",
+      "authentication": "string",
+      "body": {
+        "model": "string",
+        "messages": [
+          {
+            "role": "string",
+            "content": "string"
+          }
+        ],
+        "temperature": "number",
+        "max_tokens": "number",
+        "response_format": {
+          "type": "string",
+          "json_schema": {
+            "name": "string",
+            "strict": "boolean",
+            "schema": {
+              "$schema": "string",
+              "type": "string",
+              "properties": {
+                "changes": {
+                  "type": "string",
+                  "properties": {
+                    "vegetation": {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    },
+                    "visible_waste": {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    },
+                    "human_activity": {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    },
+                    "tree_presence": {
+                      "type": "string",
+                      "enum": [
+                        "string"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "string"
+                  ],
+                  "additionalProperties": "boolean"
+                },
+                "analysis_source": {
+                  "type": "string",
+                  "const": "string"
+                }
+              },
+              "required": [
+                "string"
+              ],
+              "additionalProperties": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "ok": "boolean",
+    "elapsed_ms": "number",
+    "response": {
+      "id": "string",
+      "object": "string",
+      "created": "number",
+      "model": "string",
+      "provider": "string",
+      "system_fingerprint": "null",
+      "service_tier": "string",
+      "choices": [
+        {
+          "index": "number",
+          "logprobs": "null",
+          "finish_reason": "string",
+          "native_finish_reason": "string",
+          "message": {
+            "role": "string",
+            "content": "string",
+            "refusal": "null",
+            "reasoning": "null"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": "number",
+        "completion_tokens": "number",
+        "total_tokens": "number",
+        "cost": "number",
+        "is_byok": "boolean",
+        "prompt_tokens_details": {
+          "cached_tokens": "number",
+          "cache_write_tokens": "number",
+          "audio_tokens": "number",
+          "video_tokens": "number"
+        },
+        "cost_details": {
+          "upstream_inference_cost": "number",
+          "upstream_inference_prompt_cost": "number",
+          "upstream_inference_completions_cost": "number"
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": "number",
+          "image_tokens": "number",
+          "audio_tokens": "number"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "ps02-day1-checks",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "day1:cloudinary": "node scripts/day1/cloudinary.mjs",
+    "day1:openrouter": "node scripts/day1/openrouter.mjs",
+    "day1:models": "node scripts/day1/models.mjs",
+    "test": "node --test scripts/day1/schema.test.mjs"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "@neondatabase/serverless": "latest",
+    "cloudinary": "latest",
+    "openai": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  }
+}
