@@ -10,3 +10,4 @@ prompts.md
 !.env.local.example
 artifacts/
 *.tsbuildinfo
+docs/
