@@ -11,21 +11,24 @@
     "day1:openrouter": "node scripts/day1/openrouter.mjs",
     "day1:models": "node scripts/day1/models.mjs",
     "test": "node --test scripts/day1/schema.test.mjs scripts/step2/*.test.mjs",
-    "step2:setup": "node scripts/step2/setup.mjs"
+    "step2:setup": "node scripts/step2/setup.mjs",
+    "dataset:collect": "node scripts/dataset/collect.mjs",
+    "dataset:test": "node --test scripts/dataset/collect.test.mjs"
   },
   "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
     "@neondatabase/serverless": "latest",
     "cloudinary": "latest",
+    "next": "latest",
     "openai": "latest",
+    "react": "latest",
+    "react-dom": "latest",
     "zod": "latest"
   },
   "devDependencies": {
-    "typescript": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "@types/react-dom": "latest",
+    "sharp": "^0.35.4",
+    "typescript": "latest"
   }
 }
