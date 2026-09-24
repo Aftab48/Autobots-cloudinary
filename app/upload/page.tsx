@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function UploadPage({ searchParams }: { searchParams: Promise<{ test?: string }> }) {
   const config = getCloudinary().config();
   const testMode = (await searchParams).test === 'core';
-  return <main>
+  return <main className="evidence">
     <p className="eyebrow">PS02 / EVIDENCE INGESTION</p>
     <h1>Upload field evidence.</h1>
     <p>Choose multiple images or videos. Originals go directly to Cloudinary; verified notifications save their raw metadata to the evidence list.</p>

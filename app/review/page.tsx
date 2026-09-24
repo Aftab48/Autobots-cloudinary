@@ -1,16 +1,22 @@
 import Link from 'next/link';
-import { listAssets } from '../../lib/db.mjs';
+import { listEvidence, EvidenceInputError } from '../../lib/project-views.mjs';
 import EvidenceCard from '../evidence/evidence-card';
+import { AssetStates } from '../components/asset-state';
+import { EvidencePagination } from '../components/evidence-parts';
 
 export const dynamic = 'force-dynamic';
-export default async function ReviewPage() {
-  const assets = await listAssets({ status: 'review' });
-  return <main className="evidence">
-    <p className="eyebrow">PS02 / HUMAN REVIEW</p><h1>Review queue.</h1>
-    <p>Resolve uncertain evidence and record why you changed its status. Every decision keeps the reviewer, time and previous status.</p>
-    <nav><Link href="/evidence">All evidence</Link><Link href="/upload">Upload evidence</Link><a href="/review">Refresh queue</a></nav>
-    <p>{assets.length} {assets.length === 1 ? 'asset needs' : 'assets need'} review{assets.length === 100 ? ' (showing the latest 100)' : ''}.</p>
-    {!assets.length && <p className="panel">The review queue is clear.</p>}
-    {assets.map(asset => <EvidenceCard key={asset.id} asset={asset} />)}
+export const metadata = { title: 'Review queue · PS02' };
+export default async function ReviewPage({ searchParams }: { searchParams: Promise<{ page?: string | string[] }> }) {
+  let result;
+  try { result = await listEvidence({ status: 'review', page: (await searchParams).page }); } catch (error) {
+    if (!(error instanceof EvidenceInputError)) throw error;
+    return <main className="evidence"><h1>Review queue.</h1><p role="alert">{error.message}</p><Link href="/review">Return to review queue</Link></main>;
+  }
+  const { assets, filters, total, pageSize } = result;
+  return <main className="evidence"><p className="eyebrow">PS02 / HUMAN REVIEW</p><h1>Review queue.</h1><p>Resolve uncertain evidence using its trust checks and AI assessment. Every decision records who changed the status, when and why.</p>
+    <div className="search-results-heading"><h2>{total} {total === 1 ? 'asset needs' : 'assets need'} review</h2><p>Newest uploads first</p></div>
+    <AssetStates assets={assets.map(({ id, status, pipeline_state }) => ({ id, status, pipeline_state }))}>
+      {!assets.length ? <section className="panel search-empty"><h2>{total ? 'No review items on this page.' : 'The queue is clear.'}</h2><p>Uncertain evidence will appear here after processing.</p><p><Link href="/evidence">Browse all evidence →</Link></p></section> : <div className="review-list">{assets.map(asset => <EvidenceCard key={asset.id} asset={asset} review />)}</div>}
+    </AssetStates><EvidencePagination filters={filters} count={assets.length} total={total} pageSize={pageSize} base="/review" />
   </main>;
 }

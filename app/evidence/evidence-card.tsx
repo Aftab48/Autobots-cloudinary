@@ -1,50 +1,24 @@
-import { getCloudinary } from '../../lib/cloudinary.mjs';
+import Link from 'next/link';
+import { assetMedia } from '../../lib/project-views.mjs';
 import { listReviewEvents } from '../../lib/db.mjs';
-import ReviewForm from './review-form';
+import AssetBadges from '../components/asset-state';
+import { EvidenceFacts, TraceLinks, TrustChecklist, AnalysisReason, ReviewDecision, readable } from '../components/evidence-parts';
 
-const labels: Record<string, string> = {
-  sharp_enough: 'Sharp enough', not_duplicate: 'Not a duplicate', relevant: 'Relevant to project',
-  activity_in_project: 'Activity in project list', date_in_project: 'Date within project dates',
-  has_location: 'Has location or site', sufficient_resolution: 'Sufficient resolution',
-};
-
-export default async function EvidenceCard({ asset }: { asset: Record<string, any> }) {
-  const events = await listReviewEvents(asset.id);
-  const url = asset.raw_cloudinary?.secure_url ?? getCloudinary().url(asset.cloudinary_public_id, {
-    secure: true, resource_type: asset.resource_type, version: Number(asset.version),
-    width: 640, crop: 'limit', quality: 'auto', fetch_format: 'auto',
-  });
-  return <article className="panel" id={asset.id}>
-    <div className="asset-heading"><h2>{asset.caption || asset.cloudinary_public_id}</h2><span className={`status status-${asset.status}`}>{asset.status.toUpperCase()}</span></div>
-    <p className="asset-id">Asset {asset.id} · {asset.resource_type} · {asset.pipeline_state}</p>
-    {asset.resource_type === 'image' ? <img className="evidence-preview" src={url} alt={asset.caption || 'Uploaded evidence awaiting description'} />
-      : <video className="evidence-preview" src={url} controls preload="metadata" />}
-    <p>{asset.status_reason || 'Processing the evidence.'}</p>
-    {asset.manual_reviewed_at && <p className="notice">A reviewer chose this status. The checklist retains the automatic checks.</p>}
-    {asset.checklist && <ul className="checklist" aria-label="Trust checklist">
-      {Object.entries(asset.checklist).map(([key, pass]) => <li key={key} className={pass ? 'pass' : 'fail'}>
-        <span aria-hidden="true">{pass ? '✓' : '×'}</span> {labels[key] ?? key} — {pass ? 'Pass' : 'Needs attention'}
-      </li>)}
-    </ul>}
-    <dl className="asset-facts">
-      <div><dt>Activity</dt><dd>{asset.activity?.replaceAll('_', ' ') ?? 'Awaiting analysis'}</dd></div>
-      <div><dt>Date</dt><dd>{asset.captured_at ? new Date(asset.captured_at).toISOString() : 'Unknown'} ({asset.capture_source ?? 'unavailable'})</dd></div>
-      <div><dt>Location</dt><dd>{asset.lat != null && asset.lng != null ? `${asset.lat}, ${asset.lng}` : asset.site_id ? 'Assigned site' : 'No location or site'}{asset.location_source ? ` (${asset.location_source})` : ''}</dd></div>
-      <div><dt>Analysis</dt><dd>{asset.analysis_source?.replaceAll('_', ' ') ?? 'Not analyzed'}</dd></div>
-    </dl>
-    {asset.duplicate_of && <p>Grouped with original: <a href={`/evidence#${asset.duplicate_of}`}>{asset.duplicate_of}</a></p>}
-    {asset.metadata_sync_error && <p className="notice">The decision is saved. Cloudinary metadata sync needs a retry.</p>}
-    <details><summary>Review decision and history ({events.length})</summary>
-      <ReviewForm assetId={asset.id} status={asset.status} />
-      {events.length ? <ol className="review-history">{events.map(event => <li key={event.id}>
-        <strong>{event.reviewer}</strong>: {event.from_status.toUpperCase()} → {event.to_status.toUpperCase()}
-        <p>{event.note}</p><small>{new Date(event.created_at).toISOString()}</small>
-      </li>)}</ol> : <p>No manual decisions yet.</p>}
-    </details>
-    <details><summary>Source metadata and webhook history</summary>
-      <p>EXIF / image metadata</p><pre>{JSON.stringify(asset.exif, null, 2)}</pre>
-      <p>pHash: <code>{asset.phash ?? 'Not supplied'}</code></p><p>etag: <code>{asset.etag ?? 'Not supplied'}</code></p>
-      <pre>{JSON.stringify(asset.cloudinary_events, null, 2)}</pre>
-    </details>
+export default async function EvidenceCard({ asset, review = false }: { asset: Record<string, any>; review?: boolean }) {
+  const urls = assetMedia(asset);
+  const events = review ? await listReviewEvents(asset.id) : [];
+  return <article className={`search-result${review ? ' review-card' : ''}`} id={asset.id} aria-labelledby={`asset-${asset.id}`}>
+    <Link className="search-preview" href={`/evidence/${asset.id}`} aria-label={`View evidence ${asset.id}`}>
+      <img src={urls.preview} alt={asset.caption || asset.cld_caption || 'Evidence awaiting description'} width={640} height={420} loading="lazy" />
+      <span className="search-media-label">{asset.parent_asset_id ? `Video frame · ${asset.frame_offset ?? '?'}s` : asset.resource_type === 'video' ? 'Video preview' : 'Photo'}</span>
+    </Link>
+    <div className="search-result-body"><AssetBadges asset={{ id: asset.id, status: asset.status, pipeline_state: asset.pipeline_state }} />
+      <h3 id={`asset-${asset.id}`}><Link href={`/evidence/${asset.id}`}>{readable(asset.activity || 'Unclassified evidence')}</Link></h3>
+      <p className="asset-caption">{asset.caption || asset.cld_caption || 'A description will appear after analysis.'}</p>
+      <EvidenceFacts asset={asset} />
+      <p className="status-reason">{asset.status_reason || (asset.pipeline_state === 'failed' ? 'Processing could not finish. Open the evidence to review its state.' : 'Waiting for the evidence pipeline.')}</p>
+      <p className="asset-id">Asset {asset.id}</p><Link className="detail-link" href={`/evidence/${asset.id}`}>View evidence & trace →</Link><TraceLinks asset={asset} />
+      {review && <><TrustChecklist asset={asset} /><AnalysisReason asset={asset} /><ReviewDecision asset={asset} events={events} /></>}
+    </div>
   </article>;
 }

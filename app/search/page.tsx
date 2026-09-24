@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { projectId } from '../../lib/cloudinary.mjs';
 import { getSearchContext, searchAssets, SearchInputError } from '../../lib/search.mjs';
 import SearchForm from './search-form';
+import { getAssetStates } from '../../lib/project-views.mjs';
+import AssetBadges, { AssetStates, type AssetState } from '../components/asset-state';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Search evidence · PS02', description: 'Find project evidence by activity, site, capture date and description.' };
@@ -17,18 +19,17 @@ const fieldLabels: Record<string, string> = { caption: 'Caption', cld_caption: '
 const readable = (value: string) => value.replaceAll('_', ' ');
 const formatDate = (value: string | null) => value ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(value)) : 'Capture date unknown';
 
-function ResultCard({ asset }: { asset: SearchAsset }) {
-  const statusClass = ['accepted', 'review', 'rejected'].includes(asset.status) ? ` status-${asset.status}` : '';
+function ResultCard({ asset, state }: { asset: SearchAsset; state?: AssetState }) {
   return <article className="search-result" aria-labelledby={`asset-${asset.id}`}>
-    <a className="search-preview" href={`/evidence#${asset.id}`} aria-label={`View evidence ${asset.id}`}>
+    <a className="search-preview" href={`/evidence/${asset.id}`} aria-label={`View evidence ${asset.id}`}>
       {/* Cloudinary supplies this bounded transformation; no generative processing. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={asset.thumbnail_url} alt={asset.caption || asset.cld_caption || `${readable(asset.activity || 'Evidence')} preview`} width={640} height={420} loading="lazy" />
       <span className="search-media-label">{asset.resource_type === 'video' ? 'Video preview' : 'Photo'}</span>
     </a>
     <div className="search-result-body">
-      <div className="asset-heading"><h3 id={`asset-${asset.id}`}><Link href={`/evidence#${asset.id}`}>{readable(asset.activity || 'Unclassified activity')}</Link></h3>
-        <span className={`status${statusClass}`}>{readable(asset.status)}</span></div>
+      <AssetBadges asset={state || { id: asset.id, status: asset.status, pipeline_state: 'unknown' }} />
+      <div className="asset-heading"><h3 id={`asset-${asset.id}`}><Link href={`/evidence/${asset.id}`}>{readable(asset.activity || 'Unclassified activity')}</Link></h3></div>
       <dl className="search-result-facts">
         <div><dt>Project</dt><dd>{asset.project_name}</dd></div>
         <div><dt>Site</dt><dd>{asset.site_name || 'Site unknown'}</dd></div>
@@ -40,6 +41,7 @@ function ResultCard({ asset }: { asset: SearchAsset }) {
       </div>
       <p className="asset-id">Asset {asset.id}</p>
       <div className="search-result-links"><a href={asset.original_url} target="_blank" rel="noreferrer">Original asset ↗</a><a href={asset.thumbnail_url} target="_blank" rel="noreferrer">Cloudinary preview ↗</a></div>
+      <details className="trace-links"><summary>Transformation URL</summary><a className="trace-url" href={asset.thumbnail_url} target="_blank" rel="noreferrer">{asset.thumbnail_url}</a></details>
     </div>
   </article>;
 }
@@ -52,6 +54,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   let context: ProjectContext | null = null;
   let response = null;
   let error = '';
+  let states: AssetState[] = [];
+  let stateError = false;
   try {
     if (submitted) {
       response = await searchAssets(projectId, query, { useLlm: !keywordOnly });
@@ -64,13 +68,17 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     error = cause instanceof SearchInputError ? cause.message : 'Search is temporarily unavailable. Please try again.';
   }
   const filters = response?.filters;
+  if (response?.results.length) {
+    try { states = await getAssetStates(response.results.map((asset: SearchAsset) => asset.id)) as AssetState[]; }
+    catch { stateError = true; }
+  }
+  const statesById = Object.fromEntries(states.map(state => [state.id, state]));
   const site = filters?.site ? context?.sites.find(item => item.id === filters.site)?.name || filters.site : null;
 
   return <main className="evidence search-page">
     <p className="eyebrow">PS02 / SEARCH EVIDENCE</p>
     <h1>Find the evidence.</h1>
     <p className="search-intro">Find moments of participation, restoration and change in your project’s evidence. See the stored details behind every match.</p>
-    <nav aria-label="Project navigation"><Link href="/">Project home</Link><Link href="/evidence">All evidence</Link><Link href="/upload">Upload evidence</Link><Link href="/review">Review queue</Link></nav>
     {context && <p className="search-project">Searching in <strong>{context.name}</strong></p>}
     <SearchForm initialQuery={query} keywordOnly={keywordOnly} />
     {error && <div className="panel search-error" role="alert"><h2>Unable to search</h2><p>{error}</p><p>Submit your search again to retry.</p></div>}
@@ -91,8 +99,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <section aria-labelledby="search-results-title">
         <div className="search-results-heading"><h2 id="search-results-title">{response.has_more ? 'First 100 matches' : `${response.results.length} ${response.results.length === 1 ? 'match' : 'matches'}`}</h2><p>Accepted evidence first · then text relevance</p></div>
         {response.has_more && <p className="notice">Showing up to 100 results. Add a date, activity or site to narrow your search.</p>}
-        {!response.results.length ? <div className="panel search-empty"><h3>No evidence matched these filters.</h3><p>Try a broader activity or date range, or remove a place name. Check the interpreted filters above before searching again.</p></div>
-          : <div className="search-results">{response.results.map((asset: SearchAsset) => <ResultCard key={asset.id} asset={asset} />)}</div>}
+        {stateError && <p className="notice">Pipeline states are temporarily unavailable. The search results are still available.</p>}
+        <AssetStates assets={states}>{!response.results.length ? <div className="panel search-empty"><h3>No evidence matched these filters.</h3><p>Try a broader activity or date range, or remove a place name. Check the interpreted filters above before searching again.</p></div>
+          : <div className="search-results">{response.results.map((asset: SearchAsset) => <ResultCard key={asset.id} asset={asset} state={statesById[asset.id]} />)}</div>}</AssetStates>
       </section>
     </>}
   </main>;
