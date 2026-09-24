@@ -6,7 +6,7 @@ const States = createContext<Record<string, AssetState>>({});
 const pending = (asset: AssetState) => ['uploaded', 'analyzing'].includes(asset.pipeline_state);
 
 /** Refresh just pipeline labels, never repeat a search or trigger analysis. */
-export function AssetStates({ assets, children }: { assets: AssetState[]; children: React.ReactNode }) {
+export function AssetStates({ assets, children, projectId }: { assets: AssetState[]; children: React.ReactNode; projectId?: string }) {
   const [states, setStates] = useState<Record<string, AssetState>>(() => Object.fromEntries(assets.map(asset => [asset.id, asset])));
   const [notice, setNotice] = useState('');
   const signature = JSON.stringify(assets.map(({ id, status, pipeline_state }) => ({ id, status, pipeline_state })));
@@ -24,7 +24,7 @@ export function AssetStates({ assets, children }: { assets: AssetState[]; childr
       if (document.visibilityState === 'hidden') { timer = setTimeout(poll, 5000); return; }
       attempts++;
       try {
-        const response = await fetch(`/api/assets/states?ids=${remaining.join(',')}`, { cache: 'no-store', signal: controller.signal });
+        const response = await fetch(`/api/assets/states?ids=${remaining.join(',')}${projectId ? `&project=${encodeURIComponent(projectId)}` : ''}`, { cache: 'no-store', signal: controller.signal });
         if (!response.ok) throw new Error('State read failed');
         const data = await response.json() as { assets: AssetState[] };
         if (stopped) return;
@@ -39,7 +39,7 @@ export function AssetStates({ assets, children }: { assets: AssetState[]; childr
     };
     timer = setTimeout(poll, 5000);
     return () => { stopped = true; clearTimeout(timer); controller.abort(); };
-  }, [signature]);
+  }, [signature, projectId]);
   return <States.Provider value={states}>{notice && <p className="notice state-notice" role="status">{notice}</p>}{children}</States.Provider>;
 }
 

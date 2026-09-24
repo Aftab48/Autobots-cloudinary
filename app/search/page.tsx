@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { projectId } from '../../lib/cloudinary.mjs';
+import { selectedProjectId } from '../../lib/active-project';
 import { getSearchContext, searchAssets, SearchInputError } from '../../lib/search.mjs';
 import SearchForm from './search-form';
 import { getAssetStates } from '../../lib/project-views.mjs';
@@ -47,6 +47,7 @@ function ResultCard({ asset, state }: { asset: SearchAsset; state?: AssetState }
 }
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string | string[]; llm?: string | string[] }> }) {
+  let projectId: string | undefined;
   const params = await searchParams;
   const query = typeof params.q === 'string' ? params.q : '';
   const submitted = typeof params.q === 'string';
@@ -57,6 +58,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   let states: AssetState[] = [];
   let stateError = false;
   try {
+    projectId = await selectedProjectId();
+    if (!projectId) throw new SearchInputError('This project is not available yet.');
     if (submitted) {
       response = await searchAssets(projectId, query, { useLlm: !keywordOnly });
       context = response.project as ProjectContext;
@@ -69,7 +72,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   }
   const filters = response?.filters;
   if (response?.results.length) {
-    try { states = await getAssetStates(response.results.map((asset: SearchAsset) => asset.id)) as AssetState[]; }
+    try { states = await getAssetStates(response.results.map((asset: SearchAsset) => asset.id), undefined, projectId) as AssetState[]; }
     catch { stateError = true; }
   }
   const statesById = Object.fromEntries(states.map(state => [state.id, state]));
@@ -100,7 +103,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <div className="search-results-heading"><h2 id="search-results-title">{response.has_more ? 'First 100 matches' : `${response.results.length} ${response.results.length === 1 ? 'match' : 'matches'}`}</h2><p>Accepted evidence first · then text relevance</p></div>
         {response.has_more && <p className="notice">Showing up to 100 results. Add a date, activity or site to narrow your search.</p>}
         {stateError && <p className="notice">Pipeline states are temporarily unavailable. The search results are still available.</p>}
-        <AssetStates assets={states}>{!response.results.length ? <div className="panel search-empty"><h3>No evidence matched these filters.</h3><p>Try a broader activity or date range, or remove a place name. Check the interpreted filters above before searching again.</p></div>
+        <AssetStates projectId={projectId} assets={states}>{!response.results.length ? <div className="panel search-empty"><h3>No evidence matched these filters.</h3><p>Try a broader activity or date range, or remove a place name. Check the interpreted filters above before searching again.</p></div>
           : <div className="search-results">{response.results.map((asset: SearchAsset) => <ResultCard key={asset.id} asset={asset} state={statesById[asset.id]} />)}</div>}</AssetStates>
       </section>
     </>}

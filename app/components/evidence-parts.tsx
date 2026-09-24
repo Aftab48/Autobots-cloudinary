@@ -7,9 +7,14 @@ export const formatDate = (value: string | null | undefined) => value ? new Intl
 export const trustLabels: Record<string, string> = { sharp_enough: 'Sharp enough', not_duplicate: 'Not a duplicate', relevant: 'Relevant to project', activity_in_project: 'Activity in project list', date_in_project: 'Date within project dates', has_location: 'Has location or site', sufficient_resolution: 'Sufficient resolution' };
 
 export function TrustChecklist({ asset }: { asset: Record<string, any> }) {
+  const checks = { ...Object.fromEntries(Object.keys(trustLabels).map(key => [key, null])), ...(asset.checklist || {}) };
   return <section aria-label="Trust checklist"><h2>Trust checklist</h2>
     {asset.manual_reviewed_at && <p className="notice">A reviewer chose this status. These checks retain the automatic assessment.</p>}
-    {asset.checklist && Object.keys(asset.checklist).length ? <ul className="checklist">{Object.entries(asset.checklist).map(([key, pass]) => <li key={key} className={pass === true ? 'pass' : 'fail'}><span aria-hidden="true">{pass === true ? '✓' : '×'}</span> {trustLabels[key] || readable(key)} <strong>— {pass === true ? 'Pass' : 'Fail'}</strong></li>)}</ul> : <p className="muted">Checks are not available yet. Processing must finish before a trust assessment can be shown.</p>}
+    <ul className="checklist">{Object.entries(checks).map(([key, pass]) => {
+      const evaluated = pass === true || pass === false;
+      const reason = asset.checklist_reasons?.[key] || (!evaluated ? ['uploaded', 'analyzing'].includes(asset.pipeline_state) ? 'Waiting for processing.' : 'No evaluation was recorded.' : null);
+      return <li key={key} className={pass === true ? 'pass' : pass === false ? 'fail' : 'not-checked'}><span aria-hidden="true">{pass === true ? '✓' : pass === false ? '×' : '—'}</span> {trustLabels[key] || readable(key)} <strong>— {pass === true ? 'Pass' : pass === false ? 'Fail' : 'Not checked'}</strong>{reason && <small>{reason}</small>}</li>;
+    })}</ul>
     <p className="small muted">These signals assess consistency with the project. They do not prove authenticity.</p>
   </section>;
 }
@@ -30,9 +35,10 @@ export function TraceLinks({ asset }: { asset: Record<string, any> }) {
   </details>;
 }
 
-export function ReviewDecision({ asset, events }: { asset: Record<string, any>; events: Record<string, any>[] }) {
+export function ReviewDecision({ asset, events, sites = [] }: { asset: Record<string, any>; events: Record<string, any>[]; sites?: { id: string; name: string }[] }) {
+  const siteLabel = (id: string | null) => id ? <span className="history-site">{sites.find(site => site.id === id)?.name || 'Unavailable site'} <small className="muted">({id})</small></span> : <span>No site</span>;
   return <section className="review-decision"><ReviewForm key={`${asset.id}-${asset.status}`} assetId={asset.id} status={asset.status} />
-    <details><summary>Decision history ({events.length})</summary>{events.length ? <ol className="review-history">{events.map(event => <li key={event.id}><strong>{event.reviewer}</strong>: {event.from_status.toUpperCase()} → {event.to_status.toUpperCase()}<p>{event.note}</p><time dateTime={new Date(event.created_at).toISOString()}>{new Date(event.created_at).toISOString().replace('T', ' ').replace('.000Z', ' UTC')}</time></li>)}</ol> : <p className="small muted">No manual decisions yet.</p>}</details>
+    <details><summary>Decision history ({events.length})</summary>{events.length ? <ol className="review-history">{events.map(event => <li key={event.id}><strong>{event.reviewer}</strong>: {event.event_type === 'site' ? <>Site changed from {siteLabel(event.from_site_id)} → {siteLabel(event.to_site_id)}</> : <>{event.from_status?.toUpperCase() || 'Unknown'} → {event.to_status?.toUpperCase() || 'Unknown'}</>}<p>{event.note}</p><time dateTime={new Date(event.created_at).toISOString()}>{new Date(event.created_at).toISOString().replace('T', ' ').replace('.000Z', ' UTC')}</time></li>)}</ol> : <p className="small muted">No manual decisions yet.</p>}</details>
     {asset.metadata_sync_error && <p className="notice">The decision is saved. Cloudinary metadata sync needs a retry.</p>}
   </section>;
 }
