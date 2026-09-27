@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chooseAnalysisPath, hashDistance, resolveCapture, restoreLegacyAnalysis, trustDecision, validateProjectActivity } from '../../lib/pipeline-rules.mjs';
+import { chooseAnalysisPath, hashDistance, isDuplicatePair, resolveCapture, restoreLegacyAnalysis, trustDecision, validateProjectActivity } from '../../lib/pipeline-rules.mjs';
 
 const project = { activities: ['river_cleanup'], start_date: '2026-01-01', end_date: '2026-12-31' };
 const analysis = { activity: 'river_cleanup', relevant_to_project: true };
@@ -59,6 +59,38 @@ test('pHash uses all 64 bits and does not match malformed or absent hashes', () 
   assert.equal(hashDistance('0000000000000000', 'ffffffffffffffff'), 64);
   assert.equal(hashDistance('8000000000000000', '0000000000000000'), 1);
   for (const h of [null, '', 'not-a-hash', 'ffff', 'g'.repeat(16)]) assert.equal(hashDistance(h, '0000000000000000'), null);
+});
+test('pHash near-duplicates need <= 3 bits and captures within an hour; same etag always matches', () => {
+  const at = minutes => new Date(Date.UTC(2026, 0, 1) + minutes * 60000).toISOString();
+  const base = { phash: '0000000000000000', captured_at: at(0) };
+  assert.equal(isDuplicatePair(base, { phash: '0000000000000007', captured_at: at(60) }), true);
+  assert.equal(isDuplicatePair(base, { phash: '000000000000000f', captured_at: at(0) }), false);
+  assert.equal(isDuplicatePair(base, { phash: '0000000000000007', captured_at: at(61) }), false);
+  assert.equal(isDuplicatePair(base, { phash: '0000000000000007', captured_at: null }), true);
+  assert.equal(isDuplicatePair({ ...base, captured_at: null }, { phash: '000000000000000f', captured_at: null }), false);
+  assert.equal(isDuplicatePair({ ...base, etag: 'e' }, { phash: 'ffffffffffffffff', etag: 'e', captured_at: at(100000) }), true);
+  assert.equal(isDuplicatePair({ ...base, etag: '' }, { phash: 'ffffffffffffffff', etag: '' }), false);
+});
+test('GPS more than 2 km from every mapped site needs review; unmapped projects and assets without GPS are unaffected', () => {
+  const north = km => 22.5 + km / 6371 * 180 / Math.PI;
+  const sites = [{ id: 's', lat: 22.5, lng: 88.3 }, { id: 'unmapped', lat: null, lng: null }];
+  assert.equal(trustDecision({ ...asset, lat: north(1.99) }, project, { sites }).status, 'accepted');
+  const far = trustDecision({ ...asset, lat: north(2.01), site_id: 's' }, project, { sites });
+  assert.equal(far.status, 'review'); assert.equal(far.checklist.has_location, false);
+  assert.equal(far.status_reason, 'GPS is far from all project sites');
+  assert.equal(trustDecision({ ...asset, lat: north(2.01) }, project, { sites: [...sites, { lat: north(3), lng: 88.3 }] }).status, 'accepted');
+  const delhi = { ...asset, lat: 28.6139, lng: 77.209 };
+  assert.equal(trustDecision(delhi, project).status, 'accepted');
+  assert.equal(trustDecision(delhi, project, { sites: [{ id: 'unmapped', lat: null, lng: null }] }).status, 'accepted');
+  assert.equal(trustDecision({ ...asset, lat: null, lng: null, site_id: 's' }, project, { sites }).status, 'accepted');
+});
+test('completed analysis with unknown relevance says so; pending analysis keeps its wording', () => {
+  for (const patch of [{ analysis_result: { ...analysis, relevant_to_project: null } }, { analysis_result: { activity: 'river_cleanup' } },
+    { pipeline_state: 'analyzing', analysis_result: { ...analysis, relevant_to_project: null } }, { analysis_result: null, analysis_completed_at: '2026-09-27T00:00:00Z', analysis_error: [{}] }]) {
+    const decision = trustDecision({ ...asset, ...patch }, project);
+    assert.equal(decision.status, 'review'); assert.equal(decision.checklist_reasons.relevant, 'AI could not determine relevance');
+  }
+  assert.equal(trustDecision({ ...asset, pipeline_state: 'analyzing', analysis_result: null }, project).checklist_reasons.relevant, 'Analysis is still processing');
 });
 test('paid path selection requires trusted tier, opt-in and sufficient remaining budget; cache wins', () => {
   const eligible = { enabled: true, remaining: 5000 };
