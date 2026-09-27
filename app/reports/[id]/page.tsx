@@ -32,7 +32,7 @@ function Claim({ claim, reportId, assets, comparisons }: { claim: Row; reportId:
       <li><h3>Original Cloudinary asset</h3>{sources.map((s, i) => s.type === 'asset' ? <Original key={i} label="Evidence" asset={assets.get(s.id)} />
         : <div key={i}><Original label="Before evidence" asset={assets.get(comparisons.get(s.id)?.before_asset_id)} /><Original label="After evidence" asset={assets.get(comparisons.get(s.id)?.after_asset_id)} /></div>)}</li>
     </ol></details>
-    <p className="claim-sources">Sources: {sources.map((s, i) => <span key={i}>{i > 0 && ', '}<SourceLink source={s} /></span>)}</p>
+    <p className="claim-sources">Sources: {sources.map((s, i) => <span key={i}>{i > 0 && ', '}<SourceLink source={s} /></span>)}<span className="print-hide"> · <Link href={`/reports/${reportId}/campaign/${claim.id}`}>Campaign cards →</Link></span></p>
   </li>;
 }
 
