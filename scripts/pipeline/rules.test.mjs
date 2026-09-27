@@ -30,6 +30,19 @@ test('hard failures reject despite otherwise passing evidence', () => {
     assert.equal(trustDecision({ ...asset, ...patch }, project).status, 'rejected');
   }
 });
+
+test('EXIF wall-clock timestamps honor their matching offset tags without double shifting', () => {
+  for (const [timeTag, offsetTag] of [['DateTimeOriginal','OffsetTimeOriginal'], ['DateTimeDigitized','OffsetTimeDigitized'], ['DateTime','OffsetTime']]) {
+    const result = resolveCapture({ exif: { [timeTag]: '2026:01:08 09:20:00', [offsetTag]: '+05:30' } });
+    assert.equal(result.capture_source, 'exif');
+    assert.equal(result.captured_at, '2026-01-08T03:50:00.000Z');
+  }
+  assert.equal(resolveCapture({ exif: { DateTimeOriginal:'2026-01-08T09:20:00+05:30', OffsetTimeOriginal:'+05:30' } }).captured_at, '2026-01-08T03:50:00.000Z');
+  assert.equal(resolveCapture({ exif: { DateTimeOriginal:'2026:01:01 00:15:00', OffsetTimeOriginal:'+05:30' } }).captured_at, '2025-12-31T18:45:00.000Z');
+  assert.equal(resolveCapture({ exif: { DateTimeOriginal:'2026:01:08 09:20:00', OffsetTimeOriginal:'-04:00' } }).captured_at, '2026-01-08T13:20:00.000Z');
+  assert.equal(resolveCapture({ exif: { DateTimeOriginal:'2026:02:30 09:20:00', OffsetTimeOriginal:'+05:30' }, created_at:'2026-07-01T00:00:00Z' }).capture_source, 'upload_time');
+  assert.equal(resolveCapture({ exif: { DateTimeOriginal:'2026:01:08 09:20:00', OffsetTimeOriginal:'+99:00' }, created_at:'2026-07-01T00:00:00Z' }).capture_source, 'upload_time');
+});
 test('no GPS/site, unknown focus, out-of-range date and uncertain activity require review', () => {
   for (const patch of [{ lat: null, lng: null }, { quality_score: null }, { quality_score: 0.4 }, { captured_at: '2025-12-31' }, { analysis_result: { ...analysis, activity: 'other' } }, { width: 100 }, { analysis_result: null }]) {
     assert.equal(trustDecision({ ...asset, ...patch }, project).status, 'review');

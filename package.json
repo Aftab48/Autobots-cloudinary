@@ -29,7 +29,13 @@
     "search:check": "node scripts/search/check.mjs",
     "project:check": "node scripts/project/check.mjs",
     "project:smoke": "node scripts/project/smoke.mjs",
-    "project:setup": "node scripts/project/setup.mjs"
+    "project:setup": "node scripts/project/setup.mjs",
+    "synthetic:models": "node scripts/synthetic/models.mjs",
+    "synthetic:generate": "node scripts/synthetic/generate.mjs",
+    "synthetic:prepare": "node scripts/synthetic/prepare.mjs",
+    "synthetic:verify": "node scripts/synthetic/verify.mjs",
+    "synthetic:costs": "node scripts/synthetic/costs.mjs",
+    "synthetic:test": "node --test scripts/synthetic/synthetic.test.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",
@@ -44,6 +50,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "piexifjs": "^1.0.6",
     "sharp": "^0.35.4",
     "typescript": "latest"
   }
