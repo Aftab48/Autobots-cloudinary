@@ -59,13 +59,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   let stateError = false;
   try {
     projectId = await selectedProjectId();
-    if (!projectId) throw new SearchInputError('This project is not available yet.');
+    if (!projectId) throw new SearchInputError('This project isn’t available yet.');
     if (submitted) {
       response = await searchAssets(projectId, query, { useLlm: !keywordOnly });
       context = response.project as ProjectContext;
     } else {
       context = await getSearchContext(projectId) as ProjectContext | null;
-      if (!context) error = 'This project is not available yet.';
+      if (!context) error = 'This project isn’t available yet.';
     }
   } catch (cause) {
     error = cause instanceof SearchInputError ? cause.message : 'Search is temporarily unavailable. Please try again.';
@@ -96,8 +96,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <div><dt>Site</dt><dd>{site || 'Any site'}</dd></div>
         </dl>
         <p className="search-help">Month-only dates use {response.reference_year}, based on the project start year when available. A year in your query takes precedence.</p>
-        <p className="search-help">Results may match any expanded keyword within these filters. A match does not establish that every concept is present or that work is completed.</p>
-        {response.mode === 'fallback' && <p className="search-help">{!query.trim() ? 'Browsing all project evidence; no AI request was needed.' : keywordOnly ? 'You selected keyword/date matching.' : 'AI query interpretation was unavailable; keyword/date matching was used.'}</p>}
+        <p className="search-help">Results may match any expanded keyword within these filters. A match doesn’t mean every concept is present, or that the work got done.</p>
+        {response.mode === 'fallback' && <p className="search-help">{!query.trim() ? 'Browsing all project evidence; no AI request was needed.' : keywordOnly ? 'You selected keyword/date matching.' : 'AI query interpretation wasn’t available, so this used keyword/date matching.'}</p>}
       </section>
       <section aria-labelledby="search-results-title">
         <div className="search-results-heading"><h2 id="search-results-title">{response.has_more ? 'First 100 matches' : `${response.results.length} ${response.results.length === 1 ? 'match' : 'matches'}`}</h2><p>Accepted evidence first · then text relevance</p></div>

@@ -27,7 +27,7 @@ function Claim({ claim, reportId, assets, comparisons }: { claim: Row; reportId:
     <ol className="trace-steps">
       <li><h3>Report claim</h3><p className="small">Claim <code>{claim.id}</code> · report <code>{reportId}</code></p></li>
       <li><h3>Cited comparison / evidence</h3>{sources.map((s, i) => <p className="small" key={i}><SourceLink source={s} /></p>)}</li>
-      <li><h3>Derived image · transformation URL</h3><p className="small">The transformation is visible in each URL. No generative transformation is applied.</p>{sources.map((s, i) => <div className="trace-item" key={i}><p className="small">{s.type === 'asset' ? 'Thumbnail (fill to 400 × 300, JPEG, automatic quality)' : 'Side-by-side composite with date labels'} for <code>{s.id}</code></p>
+      <li><h3>Derived image · transformation URL</h3><p className="small">You can read every transformation in each URL, and none of them is generative.</p>{sources.map((s, i) => <div className="trace-item" key={i}><p className="small">{s.type === 'asset' ? 'Thumbnail (fill to 400 × 300, JPEG, automatic quality)' : 'Side-by-side composite with date labels'} for <code>{s.id}</code></p>
         {s.derived_url ? <a className="trace-url" href={s.derived_url} target="_blank" rel="noreferrer">{s.derived_url}</a> : <p className="small muted">No derived URL was saved.</p>}</div>)}</li>
       <li><h3>Original Cloudinary asset</h3>{sources.map((s, i) => s.type === 'asset' ? <Original key={i} label="Evidence" asset={assets.get(s.id)} />
         : <div key={i}><Original label="Before evidence" asset={assets.get(comparisons.get(s.id)?.before_asset_id)} /><Original label="After evidence" asset={assets.get(comparisons.get(s.id)?.after_asset_id)} /></div>)}</li>
@@ -78,7 +78,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     </section>
 
     <section className="panel" aria-labelledby="claims-heading"><h2 id="claims-heading">Key observations</h2><p className="small muted print-hide">Select a sentence to open its trace chain: claim → comparison or evidence → derived image → original Cloudinary asset.</p>
-      {claims.length ? <ol className="report-claims">{claims.map((claim: Row) => <Claim key={claim.id} claim={claim} reportId={report.id} assets={assetById} comparisons={comparisonById} />)}</ol> : <p className="muted">No observation could be cited: the project had no accepted evidence or comparisons.</p>}
+      {claims.length ? <ol className="report-claims">{claims.map((claim: Row) => <Claim key={claim.id} claim={claim} reportId={report.id} assets={assetById} comparisons={comparisonById} />)}</ol> : <p className="muted">Nothing to cite: the project had no accepted evidence or comparisons.</p>}
     </section>
 
     <section aria-labelledby="media-heading"><h2 id="media-heading">Supporting media</h2><p className="small muted">Every evidence thumbnail cited above, linked to its record and its untouched original.</p>

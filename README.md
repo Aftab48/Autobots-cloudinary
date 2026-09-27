@@ -1,6 +1,8 @@
-# PS02 — Evidence Intelligence Platform (Cloudinary)
+# PS02: Evidence Intelligence Platform (Cloudinary)
 
-Next.js + Neon + Cloudinary + OpenRouter. The spec lives in `plan/` and working notes in `docs/`; both are kept locally and are not in git.
+Field teams upload photos and videos from a restoration project; the app checks each one (date, GPS, blur, duplicates, relevance), sorts it into accepted, review or rejected, and keeps a link from every report sentence back to the original file on Cloudinary. It runs on Next.js, Neon Postgres, Cloudinary and OpenRouter. The spec sits in `plan/` and working notes in `docs/`; neither goes into git.
+
+Pages: dashboard, evidence, review queue, search, upload, field capture (`/capture`, camera plus GPS for phones), before/after, and reports with campaign cards.
 
 ## Run
 
@@ -10,7 +12,7 @@ npm.cmd run dev
 ngrok http 3000 --url https://chase-tricolor-lunchtime.ngrok-free.dev
 ```
 
-The second and third commands run in separate terminals. ngrok is required for Cloudinary webhooks.
+Run the dev server and ngrok in separate terminals. Cloudinary webhooks need ngrok, and so does testing `/capture` on a phone, because browser geolocation only works over https.
 
 ## Stuck uploads (asset stays in "processing")
 
@@ -19,16 +21,20 @@ npm.cmd run pipeline:stuck
 npm.cmd run pipeline:process -- --asset <UUID> --llm
 ```
 
-The first command lists stuck, stale, failed or metadata-pending assets. The second re-runs one asset through the pipeline with the LLM path (no AI Vision tokens). Saved AI results are reused, never paid for twice.
+`pipeline:stuck` lists assets that are stuck, stale, failed or waiting on a metadata sync. `pipeline:process` re-runs one asset through the LLM path, so it spends no AI Vision tokens, and it reuses any AI result already saved instead of paying for it twice.
+
+## Tests
+
+```powershell
+npm.cmd test
+npm.cmd run typecheck
+```
+
+The tests run offline: they make no LLM, AI Vision or upload calls.
 
 ## Day-1 probes (historical)
 
-```powershell
-npm.cmd install
-npm.cmd run dev
-```
-
-App: http://localhost:3000. Keep credentials in the existing `.env.local`; `.env.local.example` contains names only. Never copy the example over real credentials. Scripts load `.env.local`, while shell environment overrides take precedence.
+Credentials live in `.env.local`; `.env.local.example` only lists the names, so never copy it over the real file. Scripts read `.env.local`, and shell environment variables override it.
 
 ```powershell
 npm.cmd run day1:models
@@ -38,14 +44,8 @@ $env:LLM_MODEL_TEXT = 'google/gemini-2.5-flash-lite'
 npm.cmd run day1:openrouter
 ```
 
-Comma-separated vision IDs are supported only by the benchmark. Use a single recommended ID for the future application. Live scripts upload public test fixtures and consume enabled add-on/model quotas; they do not enroll in plans or change subscriptions. Results and full upload output go to `artifacts/day1/` (gitignored). To keep console output, pipe a command to `Tee-Object artifacts/day1/cloudinary.log` after the directory exists.
+Only the benchmark accepts a comma-separated list of vision models; the app itself takes one. These scripts upload public test fixtures and spend whatever add-on and model quota is enabled, though they never sign up for plans or change subscriptions. Results land in `artifacts/day1/` (gitignored). To keep the console output too, pipe a command to `Tee-Object artifacts/day1/cloudinary.log` once that folder exists.
 
-Cloudinary reuses completed uploads and fills missing fixtures; `--fresh` creates a new five-image set. Targeted probes: `npm.cmd run day1:cloudinary -- --tagging-only` or `--search-only`. OpenRouter can retry failed image validations once with `--retry-failed`, or run only the chosen vision model's pair test with `--pair-only`. Each ordinary malformed-output call retries once and then records `REVIEW`; inspect the raw first attempt as well as the final summary. A new full benchmark overwrites its previous records, so copy `artifacts/day1` elsewhere if retaining multiple experiments.
+`day1:cloudinary` reuses finished uploads and fills in missing fixtures; `--fresh` uploads a new five-image set, and `--tagging-only` or `--search-only` run a single probe. `day1:openrouter` takes `--retry-failed` to retry failed image validations once, or `--pair-only` to run just the chosen vision model's pair test. A malformed model reply gets one retry and then goes to `REVIEW`, so check the raw first attempt as well as the summary. A new full benchmark overwrites the old records; copy `artifacts/day1` somewhere else first if you want to keep them.
 
-```powershell
-node --test scripts/day1/schema.test.mjs
-npm.cmd run typecheck
-npm.cmd run build
-```
-
-The supplied `notification_url` is exercised as an upload option. Webhook receipt and signature validation belong to the next step and have not been verified here.
+Webhook signature checks were built after these probes; they live in `app/api/cloudinary/webhook` and `lib/cloudinary.mjs` (`verifyWebhook`).

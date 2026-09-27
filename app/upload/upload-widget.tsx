@@ -47,7 +47,7 @@ export default function UploadWidget({ cloudName, apiKey, testMode, project }: {
         }
       },
     }, (error, result) => {
-      if (error) setMessage('The upload could not finish. Please try again.');
+      if (error) setMessage('The upload didn’t finish. Please try again.');
       if (result?.event === 'close') setActive(false);
       if (result?.event === 'success') {
         setCount(value => value + 1);
@@ -57,13 +57,13 @@ export default function UploadWidget({ cloudName, apiKey, testMode, project }: {
     widget.current.open();
     } catch {
       setActive(false);
-      setMessage('The upload window could not open. Please try again.');
+      setMessage('The upload window didn’t open. Please try again.');
     }
   }
 
   return <section className="panel">
-    <Script src="https://upload-widget.cloudinary.com/latest/global/all.js" onReady={() => setReady(true)} onError={() => setMessage('The Cloudinary Upload Widget could not load.')} />
-    <form onSubmit={open}><fieldset className="batch-context" disabled={active}><legend>Batch context <span className="muted">· optional</span></legend><p className="small muted">These details apply to every file in this batch. The date is used when capture and EXIF dates are unavailable; an activity hint is recorded for reviewers.</p><div className="form-grid">
+    <Script src="https://upload-widget.cloudinary.com/latest/global/all.js" onReady={() => setReady(true)} onError={() => setMessage('The Cloudinary Upload Widget didn’t load.')} />
+    <form onSubmit={open}><fieldset className="batch-context" disabled={active}><legend>Batch context <span className="muted">· optional</span></legend><p className="small muted">These details apply to every file in this batch. The date only counts when a file has no capture-page or EXIF date, and reviewers see the activity hint.</p><div className="form-grid">
       <label>Site<select value={site} onChange={event => setSite(event.target.value)}><option value="">Site unknown</option>{project.sites.map(site => <option key={site.id} value={site.id}>{site.name}</option>)}</select></label>
       <label>Activity hint<select value={activity} onChange={event => setActivity(event.target.value)}><option value="">No activity hint</option>{project.activities.map(activity => <option key={activity} value={activity}>{activity.replaceAll('_', ' ')}</option>)}</select></label>
       <label>Date · UTC<input type="date" value={date} onChange={event => setDate(event.target.value)} /></label>

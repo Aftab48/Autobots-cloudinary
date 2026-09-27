@@ -22,12 +22,12 @@ export default function CaptureForm({ cloudName, apiKey, testMode, project }: { 
     // A gallery pick keeps its older file time; its own EXIF is more honest than "now".
     if (Date.now() - picked.lastModified > 5 * 60000) {
       setCapturedAt('');
-      setLocation('This photo was not taken just now, so its EXIF date and location (or the site you pick) will be used.');
+      setLocation('This photo wasn’t taken just now, so we’ll use its EXIF date and location, or the site you pick.');
       return;
     }
     setCapturedAt(new Date().toISOString());
     if (!window.isSecureContext || !navigator.geolocation) {
-      setLocation('Location is not available here (it needs https). The capture time is still recorded; the photo EXIF or the site you pick will give the location.');
+      setLocation('Location needs https, so it isn’t available here. The capture time still gets recorded, and the location comes from the photo’s EXIF or the site you pick.');
       return;
     }
     setLocation('Getting your location…'); setLocating(true);
@@ -63,7 +63,7 @@ export default function CaptureForm({ cloudName, apiKey, testMode, project }: { 
       if (input.current) input.current.value = '';
       setMessage('Uploaded. The evidence list updates after Cloudinary sends its notification.');
     } catch (error) {
-      setMessage(`${error instanceof TypeError ? 'The upload could not finish. Check the connection.' : (error as Error).message} The photo is kept here; try again.`);
+      setMessage(`${error instanceof TypeError ? 'The upload didn’t finish. Check your connection.' : (error as Error).message} The photo is kept here; try again.`);
     } finally { setBusy(false); }
   }
 

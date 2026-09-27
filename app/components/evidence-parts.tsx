@@ -12,13 +12,13 @@ export const trustLabels: Record<string, string> = { sharp_enough: 'Sharp enough
 export function TrustChecklist({ asset }: { asset: Record<string, any> }) {
   const checks = { ...Object.fromEntries(Object.keys(trustLabels).map(key => [key, null])), ...(asset.checklist || {}) };
   return <section aria-label="Trust checklist"><h2>Trust checklist</h2>
-    {asset.manual_reviewed_at && <p className="notice">A reviewer chose this status. These checks retain the automatic assessment.</p>}
+    {asset.manual_reviewed_at && <p className="notice">A reviewer set this status. The checks below still show what the automatic pass found.</p>}
     <ul className="checklist">{Object.entries(checks).map(([key, pass]) => {
       const evaluated = pass === true || pass === false;
       const reason = asset.checklist_reasons?.[key] || (!evaluated ? ['uploaded', 'analyzing'].includes(asset.pipeline_state) ? 'Waiting for processing.' : 'No evaluation was recorded.' : null);
-      return <li key={key} className={pass === true ? 'pass' : pass === false ? 'fail' : 'not-checked'}><span aria-hidden="true">{pass === true ? '✓' : pass === false ? '×' : '—'}</span> {trustLabels[key] || readable(key)} <strong>— {pass === true ? 'Pass' : pass === false ? 'Fail' : 'Not checked'}</strong>{reason && <small>{reason}</small>}</li>;
+      return <li key={key} className={pass === true ? 'pass' : pass === false ? 'fail' : 'not-checked'}><span aria-hidden="true">{pass === true ? '✓' : pass === false ? '×' : '—'}</span> {trustLabels[key] || readable(key)} <strong>· {pass === true ? 'Pass' : pass === false ? 'Fail' : 'Not checked'}</strong>{reason && <small>{reason}</small>}</li>;
     })}</ul>
-    <p className="small muted">These signals assess consistency with the project. They do not prove authenticity.</p>
+    <p className="small muted">These checks test whether the evidence fits the project; they don’t prove it’s authentic.</p>
   </section>;
 }
 

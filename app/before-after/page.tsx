@@ -19,16 +19,16 @@ export default async function BeforeAfterPage({ searchParams }: { searchParams: 
   const { status } = await searchParams;
   const option = (asset: Record<string, any>) => <option key={asset.id} value={asset.id}>{asset.site_name || 'No site'} · {formatDate(asset.captured_at)} · {asset.status} · {asset.id.slice(0, 8)}</option>;
   return <main className="evidence"><p className="eyebrow">PS02 / BEFORE &amp; AFTER</p><h1>Before and after.</h1>
-    <p>Compare two photos of the same place. Cloudinary builds the side-by-side image. The same fixed questions are answered for each photo, and the answers are compared in code. Only visible differences are reported.</p>
+    <p>Compare two photos of the same place. Cloudinary builds the side-by-side image, the AI answers the same fixed questions about each photo, and our code compares the two sets of answers, so you only see differences a camera can show.</p>
     {status === 'created' && <p className="notice" role="status">Comparison saved.</p>}
-    {status === 'existing' && <p className="notice" role="status">This pair was already compared. The saved result is shown; nothing was analysed again.</p>}
+    {status === 'existing' && <p className="notice" role="status">You already compared this pair, so this is the saved result; nothing ran again.</p>}
     <section className="panel" aria-labelledby="sites-heading"><h2 id="sites-heading">Compare a site</h2><p className="small muted">Default pair: the earliest and the latest dated photo at the site that is not rejected.</p>
       {pairs.length ? <div className="table-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Action</th></tr></thead><tbody>{pairs.map(site => <tr key={site.id}><th scope="row">{site.name}</th>
         {site.before_id && site.before_id !== site.after_id ? <><td><Link href={`/evidence/${site.before_id}`}>{formatDate(site.before_at)}</Link></td><td><Link href={`/evidence/${site.after_id}`}>{formatDate(site.after_at)}</Link></td>
           <td><CompareForm label={`Compare ${site.name}`}><input type="hidden" name="before_asset_id" value={site.before_id} /><input type="hidden" name="after_asset_id" value={site.after_id} /></CompareForm></td></>
           : <td colSpan={3} className="muted">Needs two dated photos</td>}</tr>)}</tbody></table></div> : <p className="muted">No sites have been added yet.</p>}
     </section>
-    <section className="panel" aria-labelledby="pick-heading"><h2 id="pick-heading">Pick two photos</h2><p className="small muted">Top-level photos from this project that are not rejected. The before photo cannot be captured after the after photo.</p>
+    <section className="panel" aria-labelledby="pick-heading"><h2 id="pick-heading">Pick two photos</h2><p className="small muted">Photos from this project that aren’t rejected (no video frames). The before photo has to be older than the after photo.</p>
       <CompareForm label="Compare selected photos"><div className="filter-fields"><label>Before<select name="before_asset_id" required defaultValue=""><option value="" disabled>Choose a photo</option>{assets.map(option)}</select></label><label>After<select name="after_asset_id" required defaultValue=""><option value="" disabled>Choose a photo</option>{assets.map(option)}</select></label></div></CompareForm>
     </section>
     <section aria-labelledby="results-heading"><div className="search-results-heading"><h2 id="results-heading">{comparisons.length} {comparisons.length === 1 ? 'comparison' : 'comparisons'}</h2><p>Newest first</p></div>

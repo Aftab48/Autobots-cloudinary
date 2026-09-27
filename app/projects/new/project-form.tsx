@@ -17,10 +17,10 @@ export default function ProjectForm({ activities }: { activities: string[] }) {
       if (created) { await select(created); return; }
       const response = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...Object.fromEntries(data), activities: data.getAll('activities') }) });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Project could not be created.');
+      if (!response.ok) throw new Error(result.error || 'Couldn’t create the project.');
       setCreated(result.project);
       await select(result.project);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Project could not be created.'); setBusy(false); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Couldn’t create the project.'); setBusy(false); }
   }
   return <form className="panel project-form" onSubmit={submit}><fieldset disabled={busy || Boolean(created)}><div className="form-grid">
     <label className="full-width">Project name<input name="name" required maxLength={160} autoComplete="off" /></label>

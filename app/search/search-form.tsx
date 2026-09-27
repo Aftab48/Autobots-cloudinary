@@ -25,7 +25,7 @@ export default function SearchForm({ initialQuery, keywordOnly }: { initialQuery
     <p className="search-help">Query interpretation runs only when you submit. Keyword/date fallback makes no AI request.</p>
     {pending && <p role="status" className="search-help">Searching this project’s evidence. Please wait.</p>}
     <fieldset className="search-examples" disabled={pending}>
-      <legend>Try an example <span>— select, then search</span></legend>
+      <legend>Try an example <span>(select, then search)</span></legend>
       {examples.map((example, index) => <button key={example} type="button" onClick={() => { setQuery(example); input.current?.focus(); }}>
         <span aria-hidden="true">0{index + 1}</span>{example}
       </button>)}
