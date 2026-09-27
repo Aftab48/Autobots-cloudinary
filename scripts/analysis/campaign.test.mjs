@@ -62,6 +62,8 @@ test('a claim citing accepted photos gets three cards from the chosen cited phot
   const first = await getCampaign(R, C, P, { sql });
   assert.deepEqual(calls[0].values, [C, R, P]);
   assert.match(calls[0].text, /a\.status = 'accepted'/);
+  assert.match(calls[0].text, /\bJOIN claim_sources cs\b/);
+  assert.doesNotMatch(calls[0].text, /LEFT JOIN claim_sources/, 'a claim with no sources is not found, so its text is never shown');
   assert.equal(first.asset.id, uuid(1));
   assert.equal(first.cards.length, 3);
   assert.equal(first.reason, null);

@@ -37,6 +37,8 @@ test('signed batch context validates project/site/activity/date and cannot chang
   assert.equal(await validateProjectUpload(params,sql,1000),params);
   for (const context of [params.context.replace('bulk','showcase'),params.context+'|capture_time=2026-01-01',params.context+'|detection=captioning',params.context.replace('2026-03-01','2026-02-30'),params.context.replace('river_cleanup','other'),params.context.replace(siteId,'20000000-0000-4000-8000-000000000001')]) await assert.rejects(validateProjectUpload({ ...params,context },sql,1000));
   await assert.rejects(validateProjectUpload({...params,asset_folder:`ps02/${siteId}`},sql,1000));
+  // An array preset signs like the string (the SDK joins arrays) but would skip the tier match.
+  await assert.rejects(validateProjectUpload({...params,upload_preset:['ps02_showcase']},sql,1000),/Unknown upload preset/);
   assert.ok(await validateProjectUpload({...params,upload_preset:'ps02_showcase',context:params.context.replace('bulk','showcase')},sql,1000));
 });
 test('notifications cannot move an asset or mismatch context/folder; partial add-ons retain ownership', () => {

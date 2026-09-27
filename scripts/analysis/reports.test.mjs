@@ -81,7 +81,15 @@ test('unknown or malformed project is refused before any write', async () => {
   assert.equal(inserts.length, 0);
 });
 
-test('getReport groups sources under claims in position order and hides other projects\' reports', async () => {
+test('video frames are not separate report evidence: stats and records count uploaded media only', async () => {
+  const { sql } = fakeSql(), texts = [], query = sql.query;
+  sql.query = (text, values) => { texts.push(text); return query(text, values); };
+  await generateReport(P, { sql, useLlm: false });
+  assert.match(texts.find(t => t.includes('FROM projects p')), /LEFT JOIN assets a ON a\.project_id = p\.id AND a\.parent_asset_id IS NULL/);
+  assert.match(texts.find(t => t.includes('FROM assets a LEFT JOIN sites s')), /a\.status = 'accepted' AND a\.parent_asset_id IS NULL/);
+});
+
+test('getReport groups sources under claims in position order, never returns an unsourced claim, and hides other projects\' reports', async () => {
   const R = uuid(50), rows = [
     { id: 'c0', text: 'Comparison sentence.', position: 0, asset_id: null, comparison_id: uuid(10), derived_url: composite },
     { id: 'c1', text: 'Asset sentence.', position: 1, asset_id: uuid(1), comparison_id: null, derived_url: 'thumb-1' },
@@ -93,7 +101,7 @@ test('getReport groups sources under claims in position order and hides other pr
   const { report, claims } = await getReport(R, P, sql(true));
   assert.equal(report.id, R);
   assert.deepEqual(claims.map(c => [c.id, c.position, c.sources.map(s => [s.type, s.id, s.derived_url])]), [
-    ['c0', 0, [['comparison', uuid(10), composite]]], ['c1', 1, [['asset', uuid(1), 'thumb-1'], ['asset', uuid(2), 'thumb-2']]], ['c2', 2, []]]);
+    ['c0', 0, [['comparison', uuid(10), composite]]], ['c1', 1, [['asset', uuid(1), 'thumb-1'], ['asset', uuid(2), 'thumb-2']]]], 'the unsourced legacy row is dropped');
   assert.equal(await getReport(R, P, sql(false)), null);
   assert.equal(await getReport('nope', P, sql(true)), null);
 });
