@@ -9,7 +9,7 @@ export const metadata = { title: 'Reports · PS02' };
 
 export default async function ReportsPage() {
   const projectId = await selectedProjectId();
-  if (!projectId) return <main className="evidence"><h1>Project not available.</h1><p>Create a project before writing a report.</p></main>;
+  if (!projectId) return <main className="evidence"><p className="eyebrow">PS02 / REPORTS</p><h1>Project not available.</h1><div className="panel search-empty"><h2>No project selected.</h2><p>Create a project before writing a report.</p><p><Link href="/projects/new">Create a project →</Link></p></div></main>;
   const reports = await listReports(projectId);
   return <main className="evidence"><p className="eyebrow">PS02 / REPORTS</p><h1>Reports.</h1>
     <p>A report states plain counts from the database and a list of observations. Every observation cites the accepted evidence or comparison it comes from; sentences without a valid citation are removed before saving.</p>

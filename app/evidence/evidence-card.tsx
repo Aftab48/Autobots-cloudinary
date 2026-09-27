@@ -16,7 +16,7 @@ export default async function EvidenceCard({ asset, review = false }: { asset: R
       <h3 id={`asset-${asset.id}`}><Link href={`/evidence/${asset.id}`}>{readable(asset.activity || 'Unclassified evidence')}</Link></h3>
       <p className="asset-caption">{asset.caption || asset.cld_caption || 'A description will appear after analysis.'}</p>
       <EvidenceFacts asset={asset} />
-      <p className="status-reason">{asset.status_reason || (asset.pipeline_state === 'failed' ? 'Processing could not finish. Open the evidence to review its state.' : 'Waiting for the evidence pipeline.')}</p>
+      <p className={`status-reason reason-${asset.status}`}>{asset.status_reason || (asset.pipeline_state === 'failed' ? 'Processing could not finish. Open the evidence to review its state.' : 'Waiting for the evidence pipeline.')}</p>
       <p className="asset-id">Asset {asset.id}</p><Link className="detail-link" href={`/evidence/${asset.id}`}>View evidence & trace →</Link><TraceLinks asset={asset} />
       {review && <><TrustChecklist asset={asset} /><AnalysisReason asset={asset} /><ReviewDecision asset={asset} events={events} /></>}
     </div>

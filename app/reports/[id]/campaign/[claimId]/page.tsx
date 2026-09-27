@@ -22,12 +22,15 @@ export default async function CampaignPage({ params, searchParams }: { params: P
       <p className="small muted">Cloudinary blurs detected faces first, then smart-crops each format and adds the claim text. Face detection can miss small or turned faces, so check each card before sharing. No generative transformation is applied and the original is untouched.</p>
       <ul className="campaign-cards">{cards.map(card => <li key={card.format}><h2>{card.format} · {card.width} × {card.height}</h2>
         <a href={card.url} target="_blank" rel="noreferrer"><img src={card.url} alt={`${card.format} campaign card: evidence photo with faces blurred and the claim text`} width={card.width} height={card.height} loading="lazy" /></a>
-        <p className="small"><Link href={claimHref}>Source claim</Link> · <Link href={`/evidence/${asset.id}`}>source evidence</Link></p>
-        <a className="trace-url" href={card.url} target="_blank" rel="noreferrer">{card.url}</a></li>)}</ul>
-      <section className="panel" aria-labelledby="source-heading"><h2 id="source-heading">Source evidence</h2>
-        <p className="small">Evidence <Link href={`/evidence/${asset.id}`}><code>{asset.id}</code></Link><br />Public ID <code>{asset.cloudinary_public_id}</code> · version <code>{asset.version ?? 'Not supplied'}</code> · <a href={assetMedia(asset).original} target="_blank" rel="noreferrer">Open original ↗</a></p>
-        {assets.length > 1 && <><h3>Other accepted photos this claim cites</h3><ul className="small">{assets.filter(a => a.id !== asset.id).map(a => <li key={a.id}><Link href={`?asset=${a.id}`}>Make cards from <code>{a.id}</code></Link></li>)}</ul></>}
-      </section>
-    </> : <p className="notice">No campaign card is available. {reason}</p>}
+        <p className="small"><a href={card.url} target="_blank" rel="noreferrer">Open full size ↗</a> · <Link href={claimHref}>Source claim</Link> · <Link href={`/evidence/${asset.id}`}>source evidence</Link></p></li>)}</ul>
+      <section className="panel trace-chain" aria-labelledby="source-heading"><p className="eyebrow">FROM CLAIM TO ORIGINAL</p><h2 id="source-heading">Trace chain</h2><ol className="trace-steps">
+        <li><h3>Report claim</h3><p className="small">The sentence above: claim <Link href={claimHref}><code>{claim.id}</code></Link> · report <code>{claim.report_id}</code></p></li>
+        <li><h3>Cited evidence asset</h3><p className="small">Evidence <Link href={`/evidence/${asset.id}`}><code>{asset.id}</code></Link></p>
+          {assets.length > 1 && <><p className="small"><strong>Other accepted photos this claim cites</strong></p><ul className="small">{assets.filter(a => a.id !== asset.id).map(a => <li key={a.id}><Link href={`?asset=${a.id}`}>Make cards from <code>{a.id}</code></Link></li>)}</ul></>}</li>
+        <li><h3>Derived images · transformation URLs</h3><p className="small">Each URL shows exactly what was done: face blur, smart crop and the claim text. No generative transformation.</p>
+          {cards.map(card => <div key={card.format}><p className="trace-label">{card.format} card</p><a className="trace-url" href={card.url} target="_blank" rel="noreferrer">{card.url}</a></div>)}</li>
+        <li><h3>Original Cloudinary asset</h3><p className="small">Public ID <code>{asset.cloudinary_public_id}</code> · version <code>{asset.version ?? 'Not supplied'}</code></p><a className="button-link" href={assetMedia(asset).original} target="_blank" rel="noreferrer">Open original asset ↗</a></li>
+      </ol></section>
+    </> : <div className="panel search-empty"><h2>No campaign card is available.</h2><p>{reason}</p><p><Link href={claimHref}>← Back to the claim</Link></p></div>}
   </main>;
 }

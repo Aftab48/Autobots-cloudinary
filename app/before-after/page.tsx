@@ -14,7 +14,7 @@ function Source({ label, asset }: { label: string; asset: Record<string, any> })
 
 export default async function BeforeAfterPage({ searchParams }: { searchParams: Promise<{ status?: string | string[] }> }) {
   const projectId = await selectedProjectId();
-  if (!projectId) return <main className="evidence"><h1>Project not available.</h1><p>Create a project before comparing evidence.</p></main>;
+  if (!projectId) return <main className="evidence"><p className="eyebrow">PS02 / BEFORE &amp; AFTER</p><h1>Project not available.</h1><div className="panel search-empty"><h2>No project selected.</h2><p>Create a project before comparing evidence.</p><p><Link href="/projects/new">Create a project →</Link></p></div></main>;
   const [pairs, assets, comparisons] = await Promise.all([listSitePairs(projectId), listEligibleAssets(projectId), listComparisons(projectId)]);
   const { status } = await searchParams;
   const option = (asset: Record<string, any>) => <option key={asset.id} value={asset.id}>{asset.site_name || 'No site'} · {formatDate(asset.captured_at)} · {asset.status} · {asset.id.slice(0, 8)}</option>;
@@ -32,11 +32,12 @@ export default async function BeforeAfterPage({ searchParams }: { searchParams: 
       <CompareForm label="Compare selected photos"><div className="filter-fields"><label>Before<select name="before_asset_id" required defaultValue=""><option value="" disabled>Choose a photo</option>{assets.map(option)}</select></label><label>After<select name="after_asset_id" required defaultValue=""><option value="" disabled>Choose a photo</option>{assets.map(option)}</select></label></div></CompareForm>
     </section>
     <section aria-labelledby="results-heading"><div className="search-results-heading"><h2 id="results-heading">{comparisons.length} {comparisons.length === 1 ? 'comparison' : 'comparisons'}</h2><p>Newest first</p></div>
+      {!comparisons.length && <div className="panel search-empty"><h3>No comparisons yet.</h3><p>Compare a site or pick two photos above. Saved comparisons appear here with their side-by-side image and visible changes.</p></div>}
       {comparisons.map(c => <article key={c.id} id={`comparison-${c.id}`} className="panel"><h3>{c.site_name || 'Different or unknown sites'} · {formatDate(c.before_asset.captured_at)} → {formatDate(c.after_asset.captured_at)}</h3>
         {c.composite_url && <a href={c.composite_url} target="_blank" rel="noreferrer"><img className="detail-preview" src={c.composite_url} alt={`Side-by-side photos: before ${formatDate(c.before_asset.captured_at)} on the left, after ${formatDate(c.after_asset.captured_at)} on the right`} width={1600} height={600} /></a>}
         <p className="analysis-source">{c.analysis_source === 'cloudinary_ai_vision' ? 'Answered by Cloudinary AI Vision' : 'Answered by the fallback vision model'}</p>
         <div className="table-scroll"><table><caption className="eyebrow">VISIBLE CHANGES</caption><thead><tr><th scope="col">Category</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
-          <tbody>{categories.map(([key, label]) => <tr key={key}><th scope="row">{label}</th><td>{c.answers?.before?.[key]}</td><td>{c.answers?.after?.[key]}</td><td><strong>{c.changes?.[key]}</strong></td></tr>)}</tbody></table></div>
+          <tbody>{categories.map(([key, label]) => <tr key={key}><th scope="row">{label}</th><td>{c.answers?.before?.[key]}</td><td>{c.answers?.after?.[key]}</td><td><span className={`change change-${c.changes?.[key]}`}>{c.changes?.[key]}</span></td></tr>)}</tbody></table></div>
         <p className="small">Sources: <Source label="before" asset={c.before_asset} />, <Source label="after" asset={c.after_asset} /></p>
         {c.composite_url && <a className="trace-url" href={c.composite_url} target="_blank" rel="noreferrer">{c.composite_url}</a>}
         <p className="small muted">Comparison <code>{c.id}</code>. Visible differences only; two photos cannot show cause or impact.</p>

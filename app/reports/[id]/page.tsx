@@ -27,7 +27,7 @@ function Claim({ claim, reportId, assets, comparisons }: { claim: Row; reportId:
     <ol className="trace-steps">
       <li><h3>Report claim</h3><p className="small">Claim <code>{claim.id}</code> · report <code>{reportId}</code></p></li>
       <li><h3>Cited comparison / evidence</h3>{sources.map((s, i) => <p className="small" key={i}><SourceLink source={s} /></p>)}</li>
-      <li><h3>Derived image · transformation URL</h3><p className="small">The transformation is visible in each URL. No generative transformation is applied.</p>{sources.map((s, i) => <div key={i}><p className="small">{s.type === 'asset' ? 'Thumbnail (fill to 400 × 300, JPEG, automatic quality)' : 'Side-by-side composite with date labels'} for <code>{s.id}</code></p>
+      <li><h3>Derived image · transformation URL</h3><p className="small">The transformation is visible in each URL. No generative transformation is applied.</p>{sources.map((s, i) => <div className="trace-item" key={i}><p className="small">{s.type === 'asset' ? 'Thumbnail (fill to 400 × 300, JPEG, automatic quality)' : 'Side-by-side composite with date labels'} for <code>{s.id}</code></p>
         {s.derived_url ? <a className="trace-url" href={s.derived_url} target="_blank" rel="noreferrer">{s.derived_url}</a> : <p className="small muted">No derived URL was saved.</p>}</div>)}</li>
       <li><h3>Original Cloudinary asset</h3>{sources.map((s, i) => s.type === 'asset' ? <Original key={i} label="Evidence" asset={assets.get(s.id)} />
         : <div key={i}><Original label="Before evidence" asset={assets.get(comparisons.get(s.id)?.before_asset_id)} /><Original label="After evidence" asset={assets.get(comparisons.get(s.id)?.after_asset_id)} /></div>)}</li>
@@ -58,7 +58,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       <h3>Sites</h3>{project.sites.length ? <ul className="site-list">{project.sites.map((site: Row) => <li key={site.id}>{site.name} <span className="muted">· {count(stats.sites?.[site.name])} accepted</span></li>)}</ul> : <p className="muted">No sites have been added.</p>}
     </section>
 
-    <section aria-labelledby="stats-heading"><h2 id="stats-heading">Evidence statistics</h2><div className="status-grid">{[['Media analyzed', media.media], ['Accepted', media.accepted], ['Review', media.review], ['Rejected', media.rejected]].map(([label, value]) => <div className="stat-card" key={label}><span>{label}</span><strong>{count(value)}</strong></div>)}</div>
+    <section aria-labelledby="stats-heading"><h2 id="stats-heading">Evidence statistics</h2><div className="status-grid">{[['Media analyzed', media.media, ''], ['Accepted', media.accepted, 'accepted'], ['Review', media.review, 'review'], ['Rejected', media.rejected, 'rejected']].map(([label, value, status]) => <div className={`stat-card${status ? ` stat-${status}` : ''}`} key={label}><span>{label}</span><strong>{count(value)}</strong></div>)}</div>
       <p className="small muted">Plain database counts when the report was generated. Duplicates removed: {count(media.duplicates_removed)} · still processing: {count(media.processing)} · comparisons included: {count(stats.comparisons)}.</p>
     </section>
 
@@ -72,7 +72,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           {c.composite_url && <img className="detail-preview" src={c.composite_url} alt={`Side-by-side photos: before ${formatDate(before?.captured_at)} on the left, after ${formatDate(after?.captured_at)} on the right`} width={1600} height={600} />}
           <p className="analysis-source">{c.analysis_source === 'cloudinary_ai_vision' ? 'Answered by Cloudinary AI Vision' : 'Answered by the fallback vision model'}</p>
           <div className="table-scroll"><table><caption className="eyebrow">VISIBLE CHANGES</caption><thead><tr><th scope="col">Category</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
-            <tbody>{changeCategories.map(([key, label]) => <tr key={key}><th scope="row">{label}</th><td>{c.answers?.before?.[key]}</td><td>{c.answers?.after?.[key]}</td><td><strong>{c.changes?.[key]}</strong></td></tr>)}</tbody></table></div>
+            <tbody>{changeCategories.map(([key, label]) => <tr key={key}><th scope="row">{label}</th><td>{c.answers?.before?.[key]}</td><td>{c.answers?.after?.[key]}</td><td><span className={`change change-${c.changes?.[key]}`}>{c.changes?.[key]}</span></td></tr>)}</tbody></table></div>
           <p className="small">Comparison <code>{c.id}</code> · <Link href={`/evidence/${c.before_asset_id}`}>before evidence</Link> · <Link href={`/evidence/${c.after_asset_id}`}>after evidence</Link>. Visible differences only; two photos cannot show cause or impact.</p>
         </article>; }) : <p className="muted">No comparison is cited in this report.</p>}
     </section>
