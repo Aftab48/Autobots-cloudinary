@@ -1,8 +1,27 @@
-# PS02 Day-1 checks
+# PS02 — Evidence Intelligence Platform (Cloudinary)
 
-Minimal Next.js App Router + TypeScript scaffold and server-side account probes. This implements only plan §18 Day-1 checks; no evidence pipeline, database schema, upload endpoint, or webhook receiver is built yet.
+Next.js + Neon + Cloudinary + OpenRouter. The spec lives in `plan/` and working notes in `docs/`; both are kept locally and are not in git.
 
-See [the measured findings](docs/day1-checks.md), [observed response shapes](docs/day1-response-shapes.json), and the [project specification](plan/PS02_Project_Structure_Analysis_plan.md).
+## Run
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+ngrok http 3000 --url https://chase-tricolor-lunchtime.ngrok-free.dev
+```
+
+The second and third commands run in separate terminals. ngrok is required for Cloudinary webhooks.
+
+## Stuck uploads (asset stays in "processing")
+
+```powershell
+npm.cmd run pipeline:stuck
+npm.cmd run pipeline:process -- --asset <UUID> --llm
+```
+
+The first command lists stuck, stale, failed or metadata-pending assets. The second re-runs one asset through the pipeline with the LLM path (no AI Vision tokens). Saved AI results are reused, never paid for twice.
+
+## Day-1 probes (historical)
 
 ```powershell
 npm.cmd install
