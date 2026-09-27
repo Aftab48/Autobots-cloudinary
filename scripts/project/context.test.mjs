@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateProject, DEMO_PROJECT, SUPPORTED_ACTIVITIES, getActiveProject, createProject, createSite } from '../../lib/projects.mjs';
 import { validateProjectUpload } from '../../lib/upload-context.mjs';
+import { parseUploadContext } from '../../lib/cloudinary.mjs';
 import { notificationProjectId } from '../../lib/db.mjs';
 import { resolveCapture, trustDecision, framesNeedReview } from '../../lib/pipeline-rules.mjs';
 import { checklistForDisplay } from '../../lib/project-views.mjs';
@@ -94,4 +95,34 @@ test('site changes bind old/new site audit atomically and reject invalid scope w
   assert.equal(result.metadataPending,false); assert.equal(mirrors,1); assert.match(query.text,/s.project_id=p.project_id/); assert.match(query.text,/FOR UPDATE/); assert.match(query.text,/from_site_id,to_site_id/); assert.equal(query.values[1],siteId);
   await assert.rejects(reviewAssetSite(id,{site_id:siteId,reviewer:'A',note:'Wrong site'},{sql:{query:async()=>[]},mirror:async()=>{mirrors++;}}));
   assert.equal(mirrors,1);
+});
+test('capture-page context round-trips through signing validation and wins over EXIF time and GPS', async () => {
+  const sql = { query: async text => text.includes('FROM projects') ? [{ id, activities: SUPPORTED_ACTIVITIES }] : [] };
+  const now = Date.parse('2026-09-27T10:00:00.000Z') / 1000;
+  const context = `project=${id}|ps02_analysis_tier=bulk|capture_time=2026-09-27T09:58:30.123Z|capture_lat=22.572646|capture_lng=-88.363895|capture_accuracy=12`;
+  const params = { timestamp: now, upload_preset: 'ps02_ingest', asset_folder: `ps02/${id}`, context };
+  assert.equal(await validateProjectUpload(params, sql, now), params);
+  const custom = parseUploadContext(context);
+  assert.deepEqual([custom.capture_time, custom.capture_lat, custom.capture_lng, custom.capture_accuracy], ['2026-09-27T09:58:30.123Z', '22.572646', '-88.363895', '12']);
+  // Cloudinary returns signed context as context.custom in the stored notification.
+  const exif = { DateTimeOriginal: '2026:01:05 08:00:00', GPSLatitude: 20, GPSLongitude: 30 };
+  const won = resolveCapture({ raw_cloudinary: { context: { custom } }, exif });
+  assert.deepEqual([won.captured_at, won.capture_source, won.lat, won.lng, won.location_source], ['2026-09-27T09:58:30.123Z', 'capture_page', 22.572646, -88.363895, 'capture_page']);
+  // GPS denied/unavailable: the page sends time only; time still wins, location falls back to EXIF.
+  const timeOnly = `project=${id}|ps02_analysis_tier=bulk|capture_time=2026-09-27T09:58:30.123Z`;
+  assert.ok(await validateProjectUpload({ ...params, context: timeOnly }, sql, now));
+  const fallback = resolveCapture({ raw_cloudinary: { context: { custom: parseUploadContext(timeOnly) } }, exif });
+  assert.deepEqual([fallback.capture_source, fallback.location_source, fallback.lat, fallback.lng], ['capture_page', 'exif', 20, 30]);
+});
+test('capture-page values are strictly formatted, in range, complete and plausible', async () => {
+  const sql = { query: async text => text.includes('FROM projects') ? [{ id, activities: SUPPORTED_ACTIVITIES }] : [] };
+  const now = Date.parse('2026-09-27T10:00:00.000Z') / 1000, base = `project=${id}|ps02_analysis_tier=bulk`;
+  const gps = '|capture_lat=22.5|capture_lng=88.3';
+  for (const extra of ['|capture_time=2026-09-27', '|capture_time=2026-09-27T09:58:30Z', '|capture_time=2026-09-27T09:58:30.123+05:30', '|capture_time=2026-02-30T09:58:30.123Z',
+    `|capture_time=2026-09-27T09:58:30.123Z|capture_lat=90.1|capture_lng=0`, `|capture_time=2026-09-27T09:58:30.123Z|capture_lat=0|capture_lng=180.5`, `|capture_time=2026-09-27T09:58:30.123Z|capture_lat=1e1|capture_lng=0`,
+    `|capture_time=2026-09-27T09:58:30.123Z|capture_lat=22.5`, gps, `|capture_time=2026-09-27T09:58:30.123Z|capture_accuracy=5`, `|capture_time=2026-09-27T09:58:30.123Z${gps}|capture_accuracy=-5`,
+    '|capture_time=2026-09-27T10:06:00.000Z', '|capture_time=2026-09-26T09:00:00.000Z', '|capture_time=2026-09-27T09:58:30.123Z|capture_time=2026-09-27T09:58:31.123Z']) {
+    await assert.rejects(validateProjectUpload({ timestamp: now, upload_preset: 'ps02_core', asset_folder: `ps02/${id}`, context: base + extra }, sql, now), undefined, extra);
+  }
+  assert.ok(await validateProjectUpload({ timestamp: now, upload_preset: 'ps02_core', asset_folder: `ps02/${id}`, context: `${base}|capture_time=2026-09-27T10:04:00.000Z${gps}` }, sql, now));
 });

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-const pages = [['/', 'Dashboard'], ['/evidence', 'Evidence'], ['/review', 'Review queue'], ['/search', 'Search'], ['/before-after', 'Before / after'], ['/reports', 'Reports'], ['/upload', 'Upload']];
+const pages = [['/', 'Dashboard'], ['/evidence', 'Evidence'], ['/review', 'Review queue'], ['/search', 'Search'], ['/before-after', 'Before / after'], ['/reports', 'Reports'], ['/upload', 'Upload'], ['/capture', 'Capture']];
 export default function Navigation({ projects, selectedId, unavailable = false }: { projects: { id: string; name: string }[]; selectedId?: string; unavailable?: boolean }) {
   const pathname = usePathname();
   const [busy, setBusy] = useState(false);
