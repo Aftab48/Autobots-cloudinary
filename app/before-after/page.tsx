@@ -2,12 +2,11 @@ import Link from 'next/link';
 import { selectedProjectId } from '../../lib/active-project';
 import { assetMedia } from '../../lib/project-views.mjs';
 import { listComparisons, listEligibleAssets, listSitePairs } from '../../lib/comparisons.mjs';
-import { formatDate } from '../components/evidence-parts';
+import { changeCategories as categories, formatDate } from '../components/evidence-parts';
 import CompareForm from './compare-form';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Before / after · PS02' };
-const categories = [['vegetation', 'Vegetation'], ['tree_presence', 'Tree presence'], ['visible_waste', 'Visible waste'], ['human_activity', 'Human activity']];
 
 function Source({ label, asset }: { label: string; asset: Record<string, any> }) {
   return <>{label} <Link href={`/evidence/${asset.id}`}><code>{asset.id}</code></Link> (<a href={assetMedia(asset).original} target="_blank" rel="noreferrer">original ↗</a>)</>;

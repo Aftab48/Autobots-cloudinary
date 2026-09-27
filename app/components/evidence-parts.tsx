@@ -4,6 +4,9 @@ import ReviewForm from '../evidence/review-form';
 
 export const readable = (value: string) => value.replaceAll('_', ' ');
 export const formatDate = (value: string | null | undefined) => value ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(value)) : 'Date unknown';
+export const utcTime = (value: string | Date) => new Date(value).toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+export const writtenBy = (source: string | null | undefined) => source === 'llm' ? 'AI text model, citations checked in code' : 'Fixed template (no AI)';
+export const changeCategories = [['vegetation', 'Vegetation'], ['tree_presence', 'Tree presence'], ['visible_waste', 'Visible waste'], ['human_activity', 'Human activity']];
 export const trustLabels: Record<string, string> = { sharp_enough: 'Sharp enough', not_duplicate: 'Not a duplicate', relevant: 'Relevant to project', activity_in_project: 'Activity in project list', date_in_project: 'Date within project dates', has_location: 'Has location or site', sufficient_resolution: 'Sufficient resolution' };
 
 export function TrustChecklist({ asset }: { asset: Record<string, any> }) {
