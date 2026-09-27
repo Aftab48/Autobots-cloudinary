@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 
-// Phones open the dev server through the ngrok tunnel (APP_BASE_URL); Next blocks dev assets/HMR from other hosts.
+// Next blocks dev assets/HMR from other hosts; allow the APP_BASE_URL host (point it at a tunnel for phone testing).
 const nextConfig: NextConfig = {
   allowedDevOrigins: process.env.APP_BASE_URL ? [new URL(process.env.APP_BASE_URL).hostname] : [],
 };

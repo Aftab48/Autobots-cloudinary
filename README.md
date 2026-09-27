@@ -6,13 +6,14 @@ Pages: dashboard, evidence, review queue, search, upload, field capture (`/captu
 
 ## Run
 
+Live: https://autobots-cloudinary.vercel.app
+
 ```powershell
 npm.cmd install
 npm.cmd run dev
-ngrok http 3000 --url https://chase-tricolor-lunchtime.ngrok-free.dev
 ```
 
-Run the dev server and ngrok in separate terminals. Cloudinary webhooks need ngrok, and so does testing `/capture` on a phone, because browser geolocation only works over https.
+`APP_BASE_URL` points at the deployment, so Cloudinary webhooks land on `https://autobots-cloudinary.vercel.app/api/cloudinary/webhook` rather than on your machine. To try `/capture` from a phone against local dev you'd need an https tunnel (browser geolocation won't run over plain http) and `APP_BASE_URL` pointed at it for the session.
 
 ## Stuck uploads (asset stays in "processing")
 
