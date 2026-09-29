@@ -7,7 +7,7 @@ import { changeCategories, formatDate, readable, utcTime, writtenBy } from '../.
 import PrintButton from './print-button';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Report · PS02' };
+export const metadata = { title: 'Report · Provo' };
 type Row = Record<string, any>;
 type Source = { type: 'asset' | 'comparison'; id: string; derived_url: string | null };
 
@@ -47,7 +47,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   const thumbnails: Source[] = [...new Map<string, Source>(claims.flatMap((c: Row) => c.sources).filter((s: Source) => s.type === 'asset').map((s: Source) => [s.id, s])).values()];
   const period = report.period_start ? `${formatDate(report.period_start)} → ${formatDate(report.period_end)}` : 'No dated evidence';
   const count = (value: unknown) => typeof value === 'number' ? value : 0;
-  return <main className="evidence report"><p className="eyebrow">PS02 / REPORT</p><Link className="print-hide" href="/reports">← All reports</Link><h1>{project.name}</h1>
+  return <main className="evidence report"><p className="eyebrow">PROVO / REPORT</p><Link className="print-hide" href="/reports">← All reports</Link><h1>{project.name}</h1>
     <p>{period}</p>
     <div className="report-path"><p className="analysis-source">Sentences: {writtenBy(stats.claims_source)}</p><PrintButton /></div>
     <p className="small muted">{stats.claims_source === 'llm' ? `Only sentences citing accepted evidence or comparisons supplied to the model were kept${stats.dropped_claims ? `; ${stats.dropped_claims} uncited or wrongly cited ${stats.dropped_claims === 1 ? 'sentence was' : 'sentences were'} removed` : ''}.`

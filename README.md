@@ -1,4 +1,4 @@
-# PS02: Evidence Intelligence Platform (Cloudinary)
+﻿# Provo: Evidence Intelligence Platform (PS02, Cloudinary)
 
 Field teams upload photos and videos from a restoration project; the app checks each one (date, GPS, blur, duplicates, relevance), sorts it into accepted, review or rejected, and keeps a link from every report sentence back to the original file on Cloudinary. It runs on Next.js, Neon Postgres, Cloudinary and OpenRouter. The spec sits in `plan/` and working notes in `docs/`; neither goes into git.
 

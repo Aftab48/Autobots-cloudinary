@@ -6,7 +6,7 @@ import { EvidencePagination, readable } from '../components/evidence-parts';
 import { selectedProjectId } from '../../lib/active-project';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Evidence · PS02' };
+export const metadata = { title: 'Evidence · Provo' };
 type Params = Record<string, string | string[] | undefined>;
 export default async function EvidencePage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
@@ -15,10 +15,10 @@ export default async function EvidencePage({ searchParams }: { searchParams: Pro
   let result;
   try { result = await listEvidence(params, undefined, projectId); } catch (error) {
     if (!(error instanceof EvidenceInputError)) throw error;
-    return <main className="evidence"><p className="eyebrow">PS02 / EVIDENCE</p><h1>Evidence library.</h1><div className="panel search-error" role="alert"><h2>Check your filters</h2><p>{error.message}</p><Link href="/evidence">Reset filters</Link></div></main>;
+    return <main className="evidence"><p className="eyebrow">PROVO / EVIDENCE</p><h1>Evidence library.</h1><div className="panel search-error" role="alert"><h2>Check your filters</h2><p>{error.message}</p><Link href="/evidence">Reset filters</Link></div></main>;
   }
   const { assets, filters, total, pageSize } = result;
-  return <main className="evidence"><p className="eyebrow">PS02 / EVIDENCE</p><h1>Evidence library.</h1><p>Follow every asset from upload to decision. Filter by the recorded capture date, activity, site or review status.</p>
+  return <main className="evidence"><p className="eyebrow">PROVO / EVIDENCE</p><h1>Evidence library.</h1><p>Follow every asset from upload to decision. Filter by the recorded capture date, activity, site or review status.</p>
     <form className="panel filter-form" action="/evidence"><div className="filter-fields">
       <label>Status<select name="status" defaultValue={filters.status || ''}><option value="">All statuses</option>{STATUSES.map(status => <option key={status} value={status}>{readable(status)}</option>)}</select></label>
       <label>Activity<select name="activity" defaultValue={filters.activity || ''}><option value="">All activities</option>{[...new Set([...(project?.activities || []), ...(filters.activity ? [filters.activity] : [])])].map(activity => <option key={activity} value={activity}>{readable(activity)}</option>)}</select></label>

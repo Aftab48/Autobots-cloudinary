@@ -7,7 +7,7 @@ import { getAssetStates } from '../../lib/project-views.mjs';
 import AssetBadges, { AssetStates, type AssetState } from '../components/asset-state';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'Search evidence · PS02', description: 'Find project evidence by activity, site, capture date and description.' };
+export const metadata: Metadata = { title: 'Search evidence · Provo', description: 'Find project evidence by activity, site, capture date and description.' };
 
 type SearchAsset = {
   id: string; project_name: string; site_name: string | null; caption: string | null; cld_caption: string | null;
@@ -79,7 +79,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const site = filters?.site ? context?.sites.find(item => item.id === filters.site)?.name || filters.site : null;
 
   return <main className="evidence search-page">
-    <p className="eyebrow">PS02 / SEARCH EVIDENCE</p>
+    <p className="eyebrow">PROVO / SEARCH EVIDENCE</p>
     <h1>Find the evidence.</h1>
     <p className="search-intro">Find moments of participation, restoration and change in your project’s evidence. See the stored details behind every match.</p>
     {context && <p className="search-project">Searching in <strong>{context.name}</strong></p>}

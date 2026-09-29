@@ -6,7 +6,7 @@ import { changeCategories as categories, formatDate } from '../components/eviden
 import CompareForm from './compare-form';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Before / after · PS02' };
+export const metadata = { title: 'Before / after · Provo' };
 
 function Source({ label, asset }: { label: string; asset: Record<string, any> }) {
   return <>{label} <Link href={`/evidence/${asset.id}`}><code>{asset.id}</code></Link> (<a href={assetMedia(asset).original} target="_blank" rel="noreferrer">original ↗</a>)</>;
@@ -14,11 +14,11 @@ function Source({ label, asset }: { label: string; asset: Record<string, any> })
 
 export default async function BeforeAfterPage({ searchParams }: { searchParams: Promise<{ status?: string | string[] }> }) {
   const projectId = await selectedProjectId();
-  if (!projectId) return <main className="evidence"><p className="eyebrow">PS02 / BEFORE &amp; AFTER</p><h1>Project not available.</h1><div className="panel search-empty"><h2>No project selected.</h2><p>Create a project before comparing evidence.</p><p><Link href="/projects/new">Create a project →</Link></p></div></main>;
+  if (!projectId) return <main className="evidence"><p className="eyebrow">PROVO / BEFORE &amp; AFTER</p><h1>Project not available.</h1><div className="panel search-empty"><h2>No project selected.</h2><p>Create a project before comparing evidence.</p><p><Link href="/projects/new">Create a project →</Link></p></div></main>;
   const [pairs, assets, comparisons] = await Promise.all([listSitePairs(projectId), listEligibleAssets(projectId), listComparisons(projectId)]);
   const { status } = await searchParams;
   const option = (asset: Record<string, any>) => <option key={asset.id} value={asset.id}>{asset.site_name || 'No site'} · {formatDate(asset.captured_at)} · {asset.status} · {asset.id.slice(0, 8)}</option>;
-  return <main className="evidence"><p className="eyebrow">PS02 / BEFORE &amp; AFTER</p><h1>Before and after.</h1>
+  return <main className="evidence"><p className="eyebrow">PROVO / BEFORE &amp; AFTER</p><h1>Before and after.</h1>
     <p>Compare two photos of the same place. Cloudinary builds the side-by-side image, the AI answers the same fixed questions about each photo, and our code compares the two sets of answers, so you only see differences a camera can show.</p>
     {status === 'created' && <p className="notice" role="status">Comparison saved.</p>}
     {status === 'existing' && <p className="notice" role="status">You already compared this pair, so this is the saved result; nothing ran again.</p>}

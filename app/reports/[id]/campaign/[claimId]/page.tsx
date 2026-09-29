@@ -5,7 +5,7 @@ import { assetMedia } from '../../../../../lib/project-views.mjs';
 import { getCampaign } from '../../../../../lib/reports.mjs';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Campaign cards · PS02' };
+export const metadata = { title: 'Campaign cards · Provo' };
 
 /** Plan section 14.3: accepted evidence → cited claim → campaign cards, each linked back to its claim. */
 export default async function CampaignPage({ params, searchParams }: { params: Promise<{ id: string; claimId: string }>; searchParams: Promise<{ asset?: string | string[] }> }) {
@@ -14,7 +14,7 @@ export default async function CampaignPage({ params, searchParams }: { params: P
   if (!data) notFound();
   const { claim, assets, asset, cards, reason } = data;
   const claimHref = `/reports/${claim.report_id}#claim-${claim.id}`;
-  return <main className="evidence"><p className="eyebrow">PS02 / CAMPAIGN CARDS</p><Link href={claimHref}>← Back to the claim</Link><h1>Campaign cards</h1>
+  return <main className="evidence"><p className="eyebrow">PROVO / CAMPAIGN CARDS</p><Link href={claimHref}>← Back to the claim</Link><h1>Campaign cards</h1>
     <section className="panel" aria-labelledby="claim-heading"><h2 id="claim-heading">Source claim</h2><blockquote className="campaign-claim">{claim.text}</blockquote>
       <p className="small">Claim <Link href={claimHref}><code>{claim.id}</code></Link> · report <code>{claim.report_id}</code>. Card text is this sentence word for word, shortened with an ellipsis only when it’s too long. Nothing new gets added.</p></section>
     {asset ? <>

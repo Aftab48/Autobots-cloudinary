@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from './components/navigation';
 import { getProjectSelection } from '../lib/active-project';
-export const metadata: Metadata = { title: "PS02 · Field evidence", description: "Project evidence, analysis and review with traceable Cloudinary originals." };
+export const metadata: Metadata = { title: "Provo · Field evidence", description: "Project evidence, analysis and review with traceable Cloudinary originals." };
 export default async function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   let selection: { projects: Record<string, any>[]; project: Record<string, any> | null } = { projects: [], project: null };
   let unavailable = false;

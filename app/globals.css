@@ -1,4 +1,4 @@
-/* PS02 visual language. Every page shares these tokens; page sections below only arrange them.
+/* Provo visual language. Every page shares these tokens; page sections below only arrange them.
    Contrast (WCAG AA) is checked for each text/background pair, and every status keeps a text label. */
 :root{
   /* Neutrals and brand */

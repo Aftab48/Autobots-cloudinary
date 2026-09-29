@@ -17,7 +17,7 @@ export default function Navigation({ projects, selectedId, unavailable = false }
       window.location.assign('/');
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Project could not be selected.'); setBusy(false); }
   }
-  return <header className="site-header"><div className="site-header-inner"><Link className="site-brand" href="/" aria-label="PS02 project dashboard">PS02<span>Field evidence</span></Link>
+  return <header className="site-header"><div className="site-header-inner"><Link className="site-brand" href="/" aria-label="Provo project dashboard">Provo<span>Field evidence</span></Link>
     <div className="project-switcher"><label htmlFor="active-project">Current project</label><select id="active-project" value={selectedId || ''} disabled={busy || !projects.length} onChange={event => selectProject(event.target.value)}>{!projects.length && <option value="">{unavailable ? 'Projects unavailable' : 'No projects yet'}</option>}{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select><Link href="/projects/new">+ New project</Link>{unavailable && <span role="status">Projects are temporarily unavailable. Reload to try again.</span>}{busy && <span role="status">Switching project…</span>}{error && <span role="alert">{error}</span>}</div>
     <nav aria-label="Project navigation">{pages.map(([href, title]) => <Link key={href} href={href} aria-current={(href === '/' ? pathname === href : pathname.startsWith(href)) ? 'page' : undefined}>{title}</Link>)}</nav>
   </div></header>;

@@ -7,7 +7,7 @@ import AssetBadges, { AssetStates } from '../../components/asset-state';
 import { TrustChecklist, AnalysisReason, ReviewDecision, readable, formatDate } from '../../components/evidence-parts';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Evidence detail · PS02' };
+export const metadata = { title: 'Evidence detail · Provo' };
 export default async function EvidenceDetail({ params }: { params: Promise<{ id: string }> }) {
   const projectId = await selectedProjectId();
   const detail = await getEvidenceDetail((await params).id, undefined, projectId);
@@ -17,7 +17,7 @@ export default async function EvidenceDetail({ params }: { params: Promise<{ id:
   const urls = assetMedia(asset);
   const state = { id: asset.id, status: asset.status, pipeline_state: asset.pipeline_state };
   const batchContext = asset.raw_cloudinary?.context?.custom || asset.raw_cloudinary?.context || {};
-  return <main className="evidence evidence-detail"><p className="eyebrow">PS02 / EVIDENCE DETAIL</p><Link href="/evidence">← Evidence library</Link><h1>{readable(asset.activity || 'Unclassified evidence')}</h1>
+  return <main className="evidence evidence-detail"><p className="eyebrow">PROVO / EVIDENCE DETAIL</p><Link href="/evidence">← Evidence library</Link><h1>{readable(asset.activity || 'Unclassified evidence')}</h1>
     <AssetStates projectId={projectId} assets={[state, ...frames.map(({ id, status, pipeline_state }) => ({ id, status, pipeline_state }))]}>
       <AssetBadges asset={state} /><p className="asset-id">Asset {asset.id}</p>
       <div className="detail-grid"><section className="panel media-panel" aria-label="Evidence preview">
